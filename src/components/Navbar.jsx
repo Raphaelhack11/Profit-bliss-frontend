@@ -1,34 +1,31 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../authContext";
+import { NavLink } from "react-router-dom";
+import { Home, Layers, BarChart, Wallet, Settings } from "lucide-react";
+
+const navItems = [
+  { to: "/dashboard", label: "Home", icon: <Home size={22} /> },
+  { to: "/plans", label: "Plans", icon: <Layers size={22} /> },
+  { to: "/investments", label: "Invest", icon: <BarChart size={22} /> },
+  { to: "/wallet", label: "Wallet", icon: <Wallet size={22} /> },
+  { to: "/settings", label: "Settings", icon: <Settings size={22} /> },
+];
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
-  const nav = useNavigate();
   return (
-    <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-pb-800 to-pb-700 shadow-md z-40">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-lg">PB</div>
-          <Link to="/dashboard" className="text-white text-xl font-semibold">Profit Bliss</Link>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {user ? (
-            <>
-              <button
-                onClick={() => { logout(); nav("/login"); }}
-                className="bg-white/10 px-3 py-1 rounded hover:bg-white/20"
-              >Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="bg-white/10 px-3 py-1 rounded">Login</Link>
-              <Link to="/signup" className="bg-white/20 px-3 py-1 rounded">Sign up</Link>
-            </>
-          )}
-        </div>
-      </div>
-    </header>
+    <nav className="fixed bottom-0 w-full bg-white border-t flex justify-around py-2 shadow-md">
+      {navItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `flex flex-col items-center text-sm ${
+              isActive ? "text-blue-600" : "text-gray-500"
+            }`
+          }
+        >
+          {item.icon}
+          <span>{item.label}</span>
+        </NavLink>
+      ))}
+    </nav>
   );
-}
+      }
