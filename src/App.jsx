@@ -11,7 +11,7 @@ import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
-import LandingPage from "./pages/LandingPage"; // ✅ use your existing landing page
+import LandingPage from "./pages/LandingPage"; // ✅ your landing page
 
 export default function App() {
   return (
@@ -20,11 +20,11 @@ export default function App() {
       <main className="pt-20 pb-24 container mx-auto px-4">
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} /> {/* ✅ Landing Page */}
+          <Route path="/" element={<LandingPage />} /> {/* ✅ FIXED */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes (with BottomNav) */}
+          {/* Protected Routes with BottomNav */}
           <Route element={<ProtectedWithNav />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
@@ -42,12 +42,15 @@ export default function App() {
   );
 }
 
-// ✅ Wrapper to show BottomNav only for logged-in users
+// ✅ Wrapper to show BottomNav only on protected pages
+import { Outlet } from "react-router-dom";
 function ProtectedWithNav() {
   return (
     <>
-      <ProtectedRoute />
-      <BottomNav />
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
+      <BottomNav /> {/* shows only when user is logged in */}
     </>
   );
-          }
+    
