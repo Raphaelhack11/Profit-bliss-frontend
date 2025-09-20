@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -11,21 +11,25 @@ import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
-import LandingPage from "./pages/LandingPage"; // ✅ your landing page
+import LandingPage from "./pages/LandingPage";
 
 export default function App() {
+  const isAuthenticated = !!localStorage.getItem("token");
+
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       <Navbar />
       <main className="pt-20 pb-24 container mx-auto px-4">
         <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} /> {/* ✅ FIXED */}
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Auth pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes with BottomNav */}
-          <Route element={<ProtectedWithNav />}>
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
             <Route path="/deposit" element={<Deposit />} />
@@ -34,23 +38,12 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          {/* Fallback */}
           <Route path="*" element={<div className="p-8">Page not found</div>} />
         </Routes>
       </main>
+
+      {/* Show BottomNav only when logged in */}
+      {isAuthenticated && <BottomNav />}
     </div>
   );
-}
-
-// ✅ Wrapper to show BottomNav only on protected pages
-import { Outlet } from "react-router-dom";
-function ProtectedWithNav() {
-  return (
-    <>
-      <ProtectedRoute>
-        <Outlet />
-      </ProtectedRoute>
-      <BottomNav /> {/* shows only when user is logged in */}
-    </>
-  );
-    
+            }
