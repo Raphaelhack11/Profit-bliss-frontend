@@ -2,38 +2,56 @@ import { Link } from "react-router-dom";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-gray-900">
-      {/* Header */}
-      <header className="p-6 text-center">
-        <h1 className="text-3xl font-bold text-blue-600">Profit Bliss</h1>
-        <p className="text-gray-600 mt-2">Grow your wealth with confidence 🚀</p>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Secure. Simple. Smart Investing.
-        </h2>
-        <div className="flex gap-4">
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      {/* Hero Section */}
+      <header className="flex justify-between items-center px-8 py-6 shadow">
+        <h1 className="text-2xl font-bold text-blue-600">Profit Bliss</h1>
+        <div className="space-x-4">
           <Link
             to="/login"
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+            className="px-4 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition"
           >
             Login
           </Link>
           <Link
             to="/signup"
-            className="px-6 py-3 bg-white border border-blue-600 text-blue-600 rounded-xl shadow hover:bg-blue-50 transition"
+            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
           >
             Sign Up
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Hero */}
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
+          Invest Smarter, Grow Faster
+        </h2>
+        <p className="mt-4 text-lg text-gray-600 max-w-xl">
+          Secure and transparent investment plans designed to help you build
+          wealth with confidence. Join us today and take the first step toward
+          financial freedom.
+        </p>
+        <div className="mt-8 space-x-4">
+          <Link
+            to="/signup"
+            className="px-6 py-3 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+          >
+            Get Started
+          </Link>
+          <Link
+            to="/login"
+            className="px-6 py-3 rounded-md border border-blue-600 text-blue-600 font-medium hover:bg-blue-600 hover:text-white transition"
+          >
+            Already a Member?
           </Link>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="p-4 text-center text-gray-500 text-sm">
+      <footer className="py-6 text-center text-gray-500 text-sm border-t">
         © {new Date().getFullYear()} Profit Bliss. All rights reserved.
       </footer>
     </div>
   );
-}
+          }
