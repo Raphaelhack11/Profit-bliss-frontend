@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -11,6 +11,7 @@ import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LandingPage from "./pages/LandingPage"; // ✅ use your existing landing page
 
 export default function App() {
   return (
@@ -18,11 +19,13 @@ export default function App() {
       <Navbar />
       <main className="pt-20 pb-24 container mx-auto px-4">
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} /> {/* ✅ Landing Page */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          <Route element={<ProtectedRoute />}>
+          {/* Protected Routes (with BottomNav) */}
+          <Route element={<ProtectedWithNav />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
             <Route path="/deposit" element={<Deposit />} />
@@ -31,11 +34,20 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
+          {/* Fallback */}
           <Route path="*" element={<div className="p-8">Page not found</div>} />
         </Routes>
       </main>
-
-      <BottomNav />
     </div>
   );
 }
+
+// ✅ Wrapper to show BottomNav only for logged-in users
+function ProtectedWithNav() {
+  return (
+    <>
+      <ProtectedRoute />
+      <BottomNav />
+    </>
+  );
+          }
