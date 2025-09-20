@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -20,29 +20,36 @@ export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Simple auth check (replace with your auth/context check if you have one)
+  // Check if user is logged in
   const isAuthenticated = !!localStorage.getItem("token");
 
-  // Paths that should be considered "public" and show full-width landing layout
+  // Public routes (no BottomNav)
   const publicPaths = ["/", "/login", "/signup"];
   const isPublic = publicPaths.includes(pathname);
 
   return (
-    // overall background is white so there are no colored gutters
     <div className="min-h-screen bg-white text-blue-800">
-      {/* Navbar stays visible on landing and other pages */}
       <Navbar />
 
-      {/* For public pages like landing, we want full-width layout.
-          For authenticated app pages, keep the container (centered max width). */}
       <main className={isPublic ? "pt-6 pb-10" : "pt-20 pb-24 container mx-auto px-4"}>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          {/* Landing page */}
+          <Route
+            path="/"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+          />
 
-          {/* Protected pages — wrap with ProtectedRoute */}
+          {/* Login & Signup redirect if already logged in */}
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+          />
+          <Route
+            path="/signup"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
+          />
+
+          {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
@@ -56,8 +63,8 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* Bottom nav only visible when logged in and not on public pages */}
+      {/* Show BottomNav ONLY if authenticated AND not on public pages */}
       {isAuthenticated && !isPublic && <BottomNav />}
     </div>
   );
-      }
+              }
