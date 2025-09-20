@@ -23,3 +23,13 @@ export default function Settings() {
     </div>
   );
 }
+
+<button
+  onClick={() => {
+    localStorage.removeItem("token");
+    window.location.href = "/"; // redirect to landing
+  }}
+  className="px-4 py-2 bg-red-600 text-white rounded"
+>
+  Logout
+</button>
