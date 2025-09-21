@@ -1,15 +1,19 @@
-// src/pages/Login.jsx
+// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
-import { useAuth } from "../authContext";
 
-export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+export default function Signup() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    country: "United Kingdom",
+    phone: "",
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ use login from AuthContext
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,12 +24,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await API.post("/auth/login", form);
-      login(res.data.token); // ✅ sets token + updates context
-      toast.success("Login successful");
-      navigate("/dashboard");
+      await API.post("/auth/register", form);
+      toast.success("Account created successfully. Please log in.");
+      navigate("/login"); // ✅ redirect to login
     } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
+      toast.error(err.response?.data?.error || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -38,8 +41,17 @@ export default function Login() {
         className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
       >
         <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
-          Login
+          Create Account
         </h2>
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
         <input
           type="email"
           name="email"
@@ -55,15 +67,35 @@ export default function Login() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
+        />
+        <select
+          name="country"
+          value={form.country}
+          onChange={handleChange}
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="United States">United States</option>
+          <option value="Canada">Canada</option>
+          <option value="Germany">Germany</option>
+          <option value="France">France</option>
+        </select>
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone Number"
+          value={form.phone}
+          onChange={handleChange}
+          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
           disabled={loading}
           className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>
     </div>
