@@ -11,7 +11,6 @@ import Withdraw from "./pages/Withdraw";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 
-import Navbar from "./components/Navbar";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
@@ -20,18 +19,16 @@ export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Check if user is logged in
-  const isAuthenticated = !!localStorage.getItem("token");
+  // ✅ check if user is logged in
+  const isAuthenticated = !!localStorage.getItem("pb_token");
 
-  // Public routes (no BottomNav)
+  // ✅ Public routes (no BottomNav)
   const publicPaths = ["/", "/login", "/signup"];
   const isPublic = publicPaths.includes(pathname);
 
   return (
     <div className="min-h-screen bg-white text-blue-800">
-      <Navbar />
-
-      <main className={isPublic ? "pt-6 pb-10" : "pt-20 pb-24 container mx-auto px-4"}>
+      <main className={isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"}>
         <Routes>
           {/* Landing page */}
           <Route
@@ -49,7 +46,7 @@ export default function App() {
             element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
           />
 
-          {/* Protected Routes */}
+          {/* ✅ Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
@@ -59,12 +56,16 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          <Route path="*" element={<div className="p-8 text-center text-gray-600">Page not found</div>} />
+          {/* Fallback */}
+          <Route
+            path="*"
+            element={<div className="p-8 text-center text-gray-600">Page not found</div>}
+          />
         </Routes>
       </main>
 
-      {/* Show BottomNav ONLY if authenticated AND not on public pages */}
+      {/* ✅ Only show BottomNav when logged in & not on login/signup */}
       {isAuthenticated && !isPublic && <BottomNav />}
     </div>
   );
-            }
+}
