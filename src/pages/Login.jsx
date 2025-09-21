@@ -1,84 +1,75 @@
-// src/pages/Login.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../api";
-import toast from "react-hot-toast";
+// src/App.jsx
+import React from "react";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
-export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [serverResponse, setServerResponse] = useState(null); // 👀 debug state
-  const navigate = useNavigate();
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Plans from "./pages/Plans";
+import Deposit from "./pages/Deposit";
+import Withdraw from "./pages/Withdraw";
+import History from "./pages/History";
+import Settings from "./pages/Settings";
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+import Navbar from "./components/Navbar";
+import BottomNav from "./components/BottomNav";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LandingPage from "./pages/LandingPage";
+import { useAuth } from "./authContext";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+export default function App() {
+  const location = useLocation();
+  const pathname = location.pathname;
 
-    try {
-      const res = await API.post("/auth/login", form);
+  const { user, loading } = useAuth();
+  const isAuthenticated = !!user;
 
-      // ✅ Save token (make sure key matches interceptor in api.js)
-      localStorage.setItem("pb_token", res.data.token);
+  // Public routes (no BottomNav)
+  const publicPaths = ["/", "/login", "/signup"];
+  const isPublic = publicPaths.includes(pathname);
 
-      // ✅ Show raw response for debugging
-      setServerResponse(res.data);
-
-      toast.success("Login successful");
-      navigate("/dashboard");
-    } catch (err) {
-      setServerResponse(err.response?.data || { error: err.message });
-      toast.error(err.response?.data?.error || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
-      >
-        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
-          Login
-        </h2>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+    <div className="min-h-screen bg-white text-blue-800">
+      <Navbar />
 
-      {/* 👇 Debug output */}
-      {serverResponse && (
-        <pre className="mt-4 p-2 bg-gray-100 text-sm rounded w-full max-w-md overflow-x-auto">
-          {JSON.stringify(serverResponse, null, 2)}
-        </pre>
-      )}
+      <main className={isPublic ? "pt-6 pb-10" : "pt-20 pb-24 container mx-auto px-4"}>
+        <Routes>
+          {/* Landing page */}
+          <Route
+            path="/"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+          />
+
+          {/* Login & Signup redirect if already logged in */}
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+          />
+          <Route
+            path="/signup"
+            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
+          />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/plans" element={<Plans />} />
+            <Route path="/deposit" element={<Deposit />} />
+            <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+
+          <Route path="*" element={<div className="p-8 text-center text-gray-600">Page not found</div>} />
+        </Routes>
+      </main>
+
+      {/* Show BottomNav ONLY if authenticated AND not on public pages */}
+      {isAuthenticated && !isPublic && <BottomNav />}
     </div>
   );
 }
