@@ -4,6 +4,25 @@ import { useNavigate } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
 
+// A simple country list (without Nigeria, includes UK)
+const countries = [
+  "United States",
+  "United Kingdom",
+  "Canada",
+  "Germany",
+  "France",
+  "India",
+  "Australia",
+  "South Africa",
+  "Kenya",
+  "Ghana",
+  "Brazil",
+  "China",
+  "Japan",
+  "Italy",
+  "Spain",
+];
+
 export default function Signup() {
   const [form, setForm] = useState({
     name: "",
@@ -24,10 +43,9 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const res = await API.post("/auth/signup", form);
-      localStorage.setItem("token", res.data.token); // ✅ save token
-      toast.success("Account created successfully");
-      navigate("/dashboard"); // ✅ redirect
+      await API.post("/auth/register", form);
+      toast.success("Account created successfully. Please log in.");
+      navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.error || "Signup failed");
     } finally {
@@ -71,14 +89,23 @@ export default function Signup() {
           className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
-        <input
-          type="text"
+
+        {/* ✅ Country dropdown */}
+        <select
           name="country"
-          placeholder="Country"
           value={form.country}
           onChange={handleChange}
           className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+          required
+        >
+          <option value="">Select Country</option>
+          {countries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           name="phone"
