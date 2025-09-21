@@ -1,6 +1,7 @@
 // src/pages/LandingPage.jsx
 import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const plans = [
   { name: "Basic", minAmount: 50, roi: 20, duration: 7 },
@@ -32,15 +33,40 @@ const testimonials = [
   },
 ];
 
+// 🔢 Counter Component
+function Counter({ target, duration = 2000, suffix = "" }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = parseInt(target);
+    const stepTime = Math.abs(Math.floor(duration / end));
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+      if (start === end) clearInterval(timer);
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [target, duration]);
+
+  return (
+    <span className="counter text-3xl md:text-4xl font-bold text-blue-700">
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-blue-800">
       {/* Hero Section */}
-      <section className="flex-1 flex items-center justify-center px-6 py-12">
+      <section className="flex-1 flex items-center justify-center px-6 py-12 animate-fadeInUp">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
           {/* Left: text */}
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-gradient">
               Smarter Investments, Brighter Future
             </h1>
             <p className="mt-4 text-lg text-blue-600 max-w-xl mx-auto md:mx-0">
@@ -69,7 +95,7 @@ export default function LandingPage() {
             <img
               src="https://undraw.co/api/illustrations/investment.svg"
               alt="Investment illustration"
-              className="max-w-xs md:max-w-sm"
+              className="max-w-xs md:max-w-sm animate-fadeInUp"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
@@ -78,24 +104,46 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 🔢 Stats Section with Counters */}
+      <section className="bg-blue-50 py-12 animate-fadeInUp">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <Counter target={500} suffix="+" />
+            <p className="mt-2 text-blue-600">Active Investors</p>
+          </div>
+          <div>
+            <Counter target={100} suffix="k+" />
+            <p className="mt-2 text-blue-600">Total Payouts ($)</p>
+          </div>
+          <div>
+            <Counter target={6} />
+            <p className="mt-2 text-blue-600">Plans Available</p>
+          </div>
+          <div>
+            <Counter target={98} suffix="%" />
+            <p className="mt-2 text-blue-600">Customer Satisfaction</p>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
-      <section className="w-full bg-white py-12">
+      <section className="w-full bg-white py-12 animate-fadeInUp">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-white border rounded-xl shadow hover:shadow-lg transition">
+          <div className="p-6 bg-white border rounded-xl shadow card-hover">
             <Shield className="h-8 w-8 text-blue-700 mb-3" />
             <h3 className="text-lg font-semibold mb-1">Secure</h3>
             <p className="text-blue-600">
               Top security practices protect your funds and data.
             </p>
           </div>
-          <div className="p-6 bg-white border rounded-xl shadow hover:shadow-lg transition">
+          <div className="p-6 bg-white border rounded-xl shadow card-hover">
             <Clock className="h-8 w-8 text-blue-700 mb-3" />
             <h3 className="text-lg font-semibold mb-1">Fast Payouts</h3>
             <p className="text-blue-600">
               Quick withdrawals and transparent processing times.
             </p>
           </div>
-          <div className="p-6 bg-white border rounded-xl shadow hover:shadow-lg transition">
+          <div className="p-6 bg-white border rounded-xl shadow card-hover">
             <TrendingUp className="h-8 w-8 text-blue-700 mb-3" />
             <h3 className="text-lg font-semibold mb-1">High ROI</h3>
             <p className="text-blue-600">
@@ -106,9 +154,11 @@ export default function LandingPage() {
       </section>
 
       {/* Investment Plans */}
-      <section className="bg-blue-50 py-16">
+      <section className="bg-blue-50 py-16 animate-fadeInUp">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">Our Investment Plans</h2>
+          <h2 className="text-3xl font-bold mb-4 text-gradient">
+            Our Investment Plans
+          </h2>
           <p className="text-blue-700 mb-10">
             Flexible plans tailored to your financial goals. Pick the one that
             suits you best.
@@ -119,7 +169,7 @@ export default function LandingPage() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className="min-w-[80%] sm:min-w-0 p-6 bg-white border rounded-2xl shadow hover:shadow-lg transition snap-center"
+                className="min-w-[80%] sm:min-w-0 p-6 bg-white border rounded-2xl shadow card-hover snap-center"
               >
                 <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
                 <p className="text-blue-700 mb-4">
@@ -143,20 +193,22 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white animate-fadeInUp">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-12">What Our Investors Say</h2>
+          <h2 className="text-3xl font-bold mb-12 text-gradient">
+            What Our Investors Say
+          </h2>
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {testimonials.map((t, i) => (
               <div
                 key={i}
-                className="p-6 bg-white border rounded-xl shadow hover:shadow-lg transition"
+                className="p-6 bg-white border rounded-xl shadow card-hover"
               >
-                <Star className="h-6 w-6 text-yellow-400 mb-3 inline" />
-                <Star className="h-6 w-6 text-yellow-400 mb-3 inline" />
-                <Star className="h-6 w-6 text-yellow-400 mb-3 inline" />
-                <Star className="h-6 w-6 text-yellow-400 mb-3 inline" />
-                <Star className="h-6 w-6 text-yellow-400 mb-3 inline" />
+                <div className="mb-3 flex justify-center text-yellow-400">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star key={idx} className="h-5 w-5 fill-yellow-400" />
+                  ))}
+                </div>
                 <p className="text-blue-700 italic mb-4">“{t.feedback}”</p>
                 <h4 className="font-semibold">{t.name}</h4>
                 <p className="text-sm text-blue-600">{t.role}</p>
@@ -167,7 +219,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-blue-600 text-sm border-t">
+      <footer className="py-6 text-center text-blue-600 text-sm border-t animate-fadeInUp">
         © {new Date().getFullYear()} Profit Bliss. All rights reserved.
       </footer>
     </div>
