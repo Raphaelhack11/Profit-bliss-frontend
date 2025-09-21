@@ -67,4 +67,4 @@ export default function App() {
       {isAuthenticated && !isPublic && <BottomNav />}
     </div>
   );
-              }
+            }
