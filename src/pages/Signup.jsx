@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
 
-// A simple country list (without Nigeria, includes UK)
+// Country list (without Nigeria, includes United Kingdom)
 const countries = [
   "United States",
   "United Kingdom",
@@ -43,7 +43,9 @@ export default function Signup() {
     setLoading(true);
 
     try {
+      // ✅ correct endpoint
       await API.post("/auth/register", form);
+
       toast.success("Account created successfully. Please log in.");
       navigate("/login");
     } catch (err) {
@@ -90,7 +92,7 @@ export default function Signup() {
           required
         />
 
-        {/* ✅ Country dropdown */}
+        {/* ✅ Dropdown for country */}
         <select
           name="country"
           value={form.country}
