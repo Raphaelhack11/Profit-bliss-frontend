@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [serverResponse, setServerResponse] = useState(null); // 👀 debug state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,12 +21,16 @@ export default function Login() {
     try {
       const res = await API.post("/auth/login", form);
 
-      // ✅ save token under "pb_token" (matches interceptor in api.js)
+      // ✅ Save token (make sure key matches interceptor in api.js)
       localStorage.setItem("pb_token", res.data.token);
 
+      // ✅ Show raw response for debugging
+      setServerResponse(res.data);
+
       toast.success("Login successful");
-      navigate("/dashboard"); // ✅ redirect
+      navigate("/dashboard");
     } catch (err) {
+      setServerResponse(err.response?.data || { error: err.message });
       toast.error(err.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
@@ -67,6 +72,13 @@ export default function Login() {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+
+      {/* 👇 Debug output */}
+      {serverResponse && (
+        <pre className="mt-4 p-2 bg-gray-100 text-sm rounded w-full max-w-md overflow-x-auto">
+          {JSON.stringify(serverResponse, null, 2)}
+        </pre>
+      )}
     </div>
   );
 }
