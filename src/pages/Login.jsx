@@ -1,75 +1,71 @@
-// src/App.jsx
-import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+// src/pages/Login.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../api";
+import toast from "react-hot-toast";
+import { useAuth } from "../authContext";
 
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import Plans from "./pages/Plans";
-import Deposit from "./pages/Deposit";
-import Withdraw from "./pages/Withdraw";
-import History from "./pages/History";
-import Settings from "./pages/Settings";
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ use login from AuthContext
 
-import Navbar from "./components/Navbar";
-import BottomNav from "./components/BottomNav";
-import ProtectedRoute from "./components/ProtectedRoute";
-import LandingPage from "./pages/LandingPage";
-import { useAuth } from "./authContext";
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-export default function App() {
-  const location = useLocation();
-  const pathname = location.pathname;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const { user, loading } = useAuth();
-  const isAuthenticated = !!user;
-
-  // Public routes (no BottomNav)
-  const publicPaths = ["/", "/login", "/signup"];
-  const isPublic = publicPaths.includes(pathname);
-
-  if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
-  }
+    try {
+      const res = await API.post("/auth/login", form);
+      login(res.data.token); // ✅ sets token + updates context
+      toast.success("Login successful");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white text-blue-800">
-      <Navbar />
-
-      <main className={isPublic ? "pt-6 pb-10" : "pt-20 pb-24 container mx-auto px-4"}>
-        <Routes>
-          {/* Landing page */}
-          <Route
-            path="/"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
-          />
-
-          {/* Login & Signup redirect if already logged in */}
-          <Route
-            path="/login"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
-          />
-          <Route
-            path="/signup"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
-          />
-
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/plans" element={<Plans />} />
-            <Route path="/deposit" element={<Deposit />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-
-          <Route path="*" element={<div className="p-8 text-center text-gray-600">Page not found</div>} />
-        </Routes>
-      </main>
-
-      {/* Show BottomNav ONLY if authenticated AND not on public pages */}
-      {isAuthenticated && !isPublic && <BottomNav />}
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
+      >
+        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
+          Login
+        </h2>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
     </div>
   );
 }
