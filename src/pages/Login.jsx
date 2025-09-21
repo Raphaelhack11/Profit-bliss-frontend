@@ -19,7 +19,10 @@ export default function Login() {
 
     try {
       const res = await API.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token); // ✅ save token
+
+      // ✅ save token under "pb_token" (matches interceptor in api.js)
+      localStorage.setItem("pb_token", res.data.token);
+
       toast.success("Login successful");
       navigate("/dashboard"); // ✅ redirect
     } catch (err) {
