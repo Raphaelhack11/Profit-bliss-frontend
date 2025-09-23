@@ -24,9 +24,9 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      await API.post("/auth/register", form);
+      await API.post("/auth/signup", form); // ✅ correct endpoint
       toast.success("Account created successfully. Please log in.");
-      navigate("/login"); // ✅ redirect to login
+      navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.error || "Signup failed");
     } finally {
@@ -35,21 +35,22 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
+        className="bg-gray-800 w-full max-w-md p-8 rounded-2xl shadow-lg border border-gray-700"
       >
-        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
-          Create Account
+        <h2 className="text-3xl font-bold text-indigo-400 mb-6 text-center">
+          Create Your Crypto.base Account
         </h2>
+
         <input
           type="text"
           name="name"
           placeholder="Full Name"
           value={form.name}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <input
@@ -58,7 +59,7 @@ export default function Signup() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <input
@@ -67,14 +68,14 @@ export default function Signup() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <select
           name="country"
           value={form.country}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="United Kingdom">United Kingdom</option>
           <option value="United States">United States</option>
@@ -88,16 +89,17 @@ export default function Signup() {
           placeholder="Phone Number"
           value={form.phone}
           onChange={handleChange}
-          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-6 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
         >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>
     </div>
   );
-}
+  }
