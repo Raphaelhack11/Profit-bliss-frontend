@@ -5,11 +5,13 @@ const API = axios.create({
   headers: { "Content-Type": "application/json" }
 });
 
-// add auth header automatically if token present
-API.interceptors.request.use((cfg) => {
+// Attach token if present
+API.interceptors.request.use((config) => {
   const token = localStorage.getItem("pb_token");
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default API;
