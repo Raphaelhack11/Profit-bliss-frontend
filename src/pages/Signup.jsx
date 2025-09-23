@@ -1,6 +1,6 @@
 // src/pages/Signup.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
 
@@ -24,7 +24,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      await API.post("/auth/signup", form); // ✅ correct endpoint
+      await API.post("/auth/register", form);
       toast.success("Account created successfully. Please log in.");
       navigate("/login");
     } catch (err) {
@@ -35,13 +35,13 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 w-full max-w-md p-8 rounded-2xl shadow-lg border border-gray-700"
+        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-3xl font-bold text-indigo-400 mb-6 text-center">
-          Create Your Crypto.base Account
+        <h2 className="text-2xl font-bold text-indigo-700 mb-6 text-center">
+          Create Account
         </h2>
 
         <input
@@ -50,7 +50,7 @@ export default function Signup() {
           placeholder="Full Name"
           value={form.name}
           onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <input
@@ -59,7 +59,7 @@ export default function Signup() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <input
@@ -68,14 +68,14 @@ export default function Signup() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <select
           name="country"
           value={form.country}
           onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="United Kingdom">United Kingdom</option>
           <option value="United States">United States</option>
@@ -89,17 +89,27 @@ export default function Signup() {
           placeholder="Phone Number"
           value={form.phone}
           onChange={handleChange}
-          className="w-full p-3 mb-6 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition"
         >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
+
+        <p className="text-center text-sm text-slate-600 mt-4">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-indigo-600 font-semibold hover:underline"
+          >
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );
-  }
+    }
