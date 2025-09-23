@@ -21,7 +21,7 @@ export default function Login() {
 
     try {
       const res = await API.post("/auth/login", form);
-      login(res.data.token); // ✅ sets token + updates context
+      login(res.data.token); // ✅ sets token in context
       toast.success("Login successful");
       navigate("/dashboard");
     } catch (err) {
@@ -32,21 +32,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
+        className="bg-gray-800 w-full max-w-md p-8 rounded-2xl shadow-lg border border-gray-700"
       >
-        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
-          Login
+        <h2 className="text-3xl font-bold text-indigo-400 mb-6 text-center">
+          Welcome Back to Crypto.base
         </h2>
+
         <input
           type="email"
           name="email"
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
         <input
@@ -55,17 +56,18 @@ export default function Login() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 mb-6 bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           required
         />
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
   );
-}
+      }
