@@ -20,7 +20,13 @@ export default function Login() {
       localStorage.setItem("pb_role", res.data.user.role); // ✅ save role
 
       toast.success("Login successful ✅");
-      navigate("/dashboard");
+
+      // ✅ Redirect based on role
+      if (res.data.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || "Login failed ❌");
     } finally {
@@ -65,4 +71,4 @@ export default function Login() {
       </div>
     </div>
   );
-          }
+      }
