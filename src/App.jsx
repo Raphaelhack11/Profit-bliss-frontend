@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
@@ -25,10 +26,15 @@ export default function App() {
 
   // ✅ check if user is logged in
   const isAuthenticated = !!localStorage.getItem("pb_token");
+  const role = localStorage.getItem("pb_role");
+  const isAdmin = role === "admin";
 
   // ✅ Public routes (no BottomNav)
   const publicPaths = ["/", "/login", "/signup"];
   const isPublic = publicPaths.includes(pathname);
+
+  // ✅ default home redirect based on role
+  const defaultHome = isAdmin ? "/admin/dashboard" : "/dashboard";
 
   return (
     <div className="min-h-screen bg-white text-blue-800">
@@ -37,20 +43,20 @@ export default function App() {
           {/* Landing page */}
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <LandingPage />}
           />
 
           {/* Login & Signup redirect if already logged in */}
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Login />}
           />
           <Route
             path="/signup"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Signup />}
           />
 
-          {/* ✅ Protected Routes */}
+          {/* ✅ User Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
@@ -58,12 +64,25 @@ export default function App() {
             <Route path="/withdraw" element={<Withdraw />} />
             <Route path="/history" element={<History />} />
             <Route path="/settings" element={<Settings />} />
-
-            {/* ✅ Admin Routes */}
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/deposits" element={<AdminDeposits />} />
-            <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
           </Route>
+
+          {/* ✅ Admin Protected Routes */}
+          <Route
+            path="/admin/*"
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Routes>
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="deposits" element={<AdminDeposits />} />
+                  <Route path="withdrawals" element={<AdminWithdrawals />} />
+                </Routes>
+              )
+            }
+          />
 
           {/* Fallback */}
           <Route
@@ -73,8 +92,8 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* ✅ Only show BottomNav when logged in & not on login/signup & not in admin */}
-      {isAuthenticated && !isPublic && !pathname.startsWith("/admin") && <BottomNav />}
+      {/* ✅ Only show BottomNav when logged in & not on login/signup and not admin */}
+      {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-  }
+        }
