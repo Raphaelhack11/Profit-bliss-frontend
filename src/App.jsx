@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
@@ -14,6 +13,11 @@ import Settings from "./pages/Settings";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
+
+// ✅ Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDeposits from "./pages/admin/AdminDeposits";
+import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 
 export default function App() {
   const location = useLocation();
@@ -54,6 +58,11 @@ export default function App() {
             <Route path="/withdraw" element={<Withdraw />} />
             <Route path="/history" element={<History />} />
             <Route path="/settings" element={<Settings />} />
+
+            {/* ✅ Admin Routes */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/deposits" element={<AdminDeposits />} />
+            <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
           </Route>
 
           {/* Fallback */}
@@ -64,8 +73,8 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* ✅ Only show BottomNav when logged in & not on login/signup */}
-      {isAuthenticated && !isPublic && <BottomNav />}
+      {/* ✅ Only show BottomNav when logged in & not on login/signup & not in admin */}
+      {isAuthenticated && !isPublic && !pathname.startsWith("/admin") && <BottomNav />}
     </div>
   );
-}
+  }
