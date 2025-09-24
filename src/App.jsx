@@ -68,18 +68,38 @@ export default function App() {
 
           {/* ✅ Admin Protected Routes */}
           <Route
-            path="/admin/*"
+            path="/admin/dashboard"
             element={
               !isAuthenticated ? (
                 <Navigate to="/login" replace />
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <Routes>
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="deposits" element={<AdminDeposits />} />
-                  <Route path="withdrawals" element={<AdminWithdrawals />} />
-                </Routes>
+                <AdminDashboard />
+              )
+            }
+          />
+          <Route
+            path="/admin/deposits"
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminDeposits />
+              )
+            }
+          />
+          <Route
+            path="/admin/withdrawals"
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminWithdrawals />
               )
             }
           />
@@ -96,4 +116,4 @@ export default function App() {
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-        }
+            }
