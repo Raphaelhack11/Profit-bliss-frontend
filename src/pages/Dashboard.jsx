@@ -9,18 +9,20 @@ export default function Dashboard() {
   const [wallet, setWallet] = useState(null);
   const [plans, setPlans] = useState([]);
   const [user, setUser] = useState(null);
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchWallet();
     fetchUser();
     fetchPlans();
+    fetchActivity();
   }, []);
 
   async function fetchWallet() {
     try {
-      const wRes = await API.get("/wallet");
-      setWallet(wRes.data);
+      const res = await API.get("/wallet");
+      setWallet(res.data);
     } catch {
       toast.error("Failed to load wallet");
     } finally {
@@ -30,8 +32,8 @@ export default function Dashboard() {
 
   async function fetchUser() {
     try {
-      const uRes = await API.get("/auth/me");
-      setUser(uRes.data);
+      const res = await API.get("/auth/me");
+      setUser(res.data);
     } catch (err) {
       console.error("Failed to fetch user");
     }
@@ -39,10 +41,33 @@ export default function Dashboard() {
 
   async function fetchPlans() {
     try {
-      const pRes = await API.get("/plans");
-      setPlans(pRes.data);
+      const res = await API.get("/plans");
+      setPlans(res.data);
     } catch {
       toast.error("Failed to load plans");
+    }
+  }
+
+  async function fetchActivity() {
+    try {
+      const res = await API.get("/investments/history");
+      setActivities(res.data.slice(0, 5)); // show latest 5
+    } catch {
+      toast.error("Failed to load activity");
+    }
+  }
+
+  async function handleInvest(plan) {
+    try {
+      await API.post("/investments", {
+        planId: plan.id,
+        amount: plan.minAmount,
+      });
+      toast.success(`Invested in ${plan.name} successfully!`);
+      fetchWallet();
+      fetchActivity();
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Investment failed");
     }
   }
 
@@ -64,7 +89,7 @@ export default function Dashboard() {
         <p className="text-gray-400 text-sm">Here’s your financial overview</p>
       </div>
 
-      {/* Wallet */}
+      {/* Wallet Card */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-6 rounded-xl shadow-lg text-white">
         <div className="flex justify-between items-center">
           <div>
@@ -100,42 +125,71 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {plans.slice(0, 3).map((p) => (
             <div
-              key={p._id}
+              key={p.id}
               className="p-4 bg-gray-800 rounded-xl shadow hover:shadow-lg transition transform hover:scale-[1.02]"
             >
               <div className="font-bold text-lg text-white">{p.name}</div>
               <div className="text-sm text-gray-400">
                 Min: ${p.minAmount} • ROI: {p.roi}% • {p.duration} days
               </div>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3">
                 <Link
                   to="/plans"
                   className="text-sm text-indigo-400 font-semibold hover:underline"
                 >
-                  View
+                  View & Invest
                 </Link>
-                <button
-                  onClick={async () => {
-                    try {
-                      await API.post("/investments/subscribe", {
-                        planId: p._id,
-                        amount: p.minAmount,
-                      });
-                      toast.success("Investment started");
-                      fetchWallet();
-                    } catch (err) {
-                      toast.error(
-                        err.response?.data?.error || "Investment failed"
-                      );
-                    }
-                  }}
-                  className="px-3 py-1 bg-green-400 text-black text-sm rounded hover:bg-green-500"
-                >
-                  Invest
-                </button>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Activity Section */}
+      <div className="bg-gray-800 p-6 rounded-xl shadow">
+        <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-green-400">
+          <Activity size={20} /> Recent Activity
+        </h3>
+        {activities.length === 0 ? (
+          <p className="text-gray-400 text-sm">
+            No recent activity yet. Start by investing in a plan.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {activities.map((inv) => (
+              <li
+                key={inv.id}
+                className="flex justify-between items-center text-sm text-gray-300 border-b border-gray-700 pb-2"
+              >
+                <div>
+                  <span className="font-semibold text-white">
+                    {inv.plan?.name}
+                  </span>{" "}
+                  — ${inv.amount} invested
+                  <span className="ml-2 text-xs text-gray-500">
+                    {new Date(inv.startDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <span
+                  className={`px-2 py-1 text-xs rounded ${
+                    inv.status === "active"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-600 text-gray-200"
+                  }`}
+                >
+                  {inv.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-3 text-right">
+          <Link
+            to="/history"
+            className="text-indigo-400 text-sm font-semibold hover:underline"
+          >
+            View All
+          </Link>
         </div>
       </div>
 
@@ -145,7 +199,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((p) => (
             <div
-              key={p._id}
+              key={p.id}
               className="p-6 rounded-xl bg-gradient-to-r from-gray-800 to-gray-700 text-white shadow-lg hover:shadow-xl transition"
             >
               <div className="flex justify-between items-center">
@@ -160,21 +214,14 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="mt-5 flex gap-3">
+                <Link
+                  to="/plans"
+                  className="px-4 py-2 bg-yellow-400 rounded-lg text-black text-sm font-semibold hover:bg-yellow-500 transition"
+                >
+                  View
+                </Link>
                 <button
-                  onClick={async () => {
-                    try {
-                      await API.post("/investments/subscribe", {
-                        planId: p._id,
-                        amount: p.minAmount,
-                      });
-                      toast.success("Investment started");
-                      fetchWallet();
-                    } catch (err) {
-                      toast.error(
-                        err.response?.data?.error || "Investment failed"
-                      );
-                    }
-                  }}
+                  onClick={() => handleInvest(p)}
                   className="px-4 py-2 bg-green-400 rounded-lg text-black text-sm font-semibold hover:bg-green-500 transition"
                 >
                   Invest ${p.minAmount}
@@ -186,4 +233,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-                }
+}
