@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
+// Demo plans (can be replaced with backend API later)
 const plans = [
   { name: "Basic", minAmount: 50, roi: 20, duration: 7 },
   { name: "Starter", minAmount: 100, roi: 25, duration: 7 },
@@ -17,23 +18,23 @@ const testimonials = [
     name: "Sarah Johnson",
     role: "Entrepreneur",
     feedback:
-      "Profit Bliss transformed my savings into steady growth. The process is transparent and super easy to follow!",
+      "CryptoBase transformed my savings into steady growth. The process is transparent and super easy!",
   },
   {
     name: "David Smith",
     role: "Engineer",
     feedback:
-      "The ROI is exactly as promised. Withdrawals are quick and hassle-free. Highly recommend this platform!",
+      "The ROI is exactly as promised. Withdrawals are quick and hassle-free. Highly recommend CryptoBase!",
   },
   {
     name: "Emily Carter",
     role: "Freelancer",
     feedback:
-      "I love the investment plans – flexible and designed for all budgets. Great support team too!",
+      "I love the flexible investment plans – there’s something for every budget. Great support team too!",
   },
 ];
 
-// 🔢 Counter Component
+// Counter animation
 function Counter({ target, duration = 2000, suffix = "" }) {
   const [count, setCount] = useState(0);
 
@@ -60,32 +61,32 @@ function Counter({ target, duration = 2000, suffix = "" }) {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 via-indigo-900 to-gray-900 text-white">
-      {/* 🌐 Navbar */}
-      <header className="w-full py-4 px-6 flex justify-between items-center border-b border-indigo-700">
-        <h1 className="text-2xl font-extrabold text-indigo-400">CryptoBase</h1>
-        <nav className="flex gap-4">
-          <Link to="/login" className="hover:text-indigo-400 transition">
+    <div className="min-h-screen flex flex-col bg-white text-gray-800">
+      {/* Navbar */}
+      <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-10">
+        <h1 className="text-2xl font-extrabold text-indigo-600">CryptoBase</h1>
+        <nav className="flex gap-4 text-gray-700 font-medium">
+          <Link to="/login" className="hover:text-indigo-600 transition">
             Login
           </Link>
-          <Link to="/signup" className="hover:text-indigo-400 transition">
+          <Link to="/signup" className="hover:text-indigo-600 transition">
             Signup
           </Link>
-          <a href="#contact" className="hover:text-indigo-400 transition">
+          <a href="#contact" className="hover:text-indigo-600 transition">
             Contact
           </a>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="flex-1 flex items-center justify-center px-6 py-12">
+      <section className="flex-1 flex items-center justify-center px-6 py-16 bg-gradient-to-r from-indigo-50 to-white">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
-          {/* Left: text */}
+          {/* Left: Text */}
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-gray-900">
               Smarter Investments, Brighter Future
             </h1>
-            <p className="mt-4 text-lg text-indigo-300 max-w-xl mx-auto md:mx-0">
+            <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto md:mx-0">
               Grow your wealth with secure, transparent, high-yield investment
               plans tailored just for you.
             </p>
@@ -99,14 +100,14 @@ export default function LandingPage() {
               </Link>
               <Link
                 to="/login"
-                className="px-6 py-3 rounded-lg border border-indigo-500 text-indigo-400 font-semibold hover:bg-indigo-600 hover:text-white transition text-center"
+                className="px-6 py-3 rounded-lg border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-600 hover:text-white transition text-center"
               >
                 Already a Member?
               </Link>
             </div>
           </div>
 
-          {/* Right: illustration */}
+          {/* Right: Illustration */}
           <div className="flex-1 flex items-center justify-center">
             <img
               src="https://undraw.co/api/illustrations/investment.svg"
@@ -120,49 +121,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 🔢 Stats Section */}
-      <section className="bg-gray-800 py-12">
+      {/* Stats */}
+      <section className="bg-indigo-50 py-12">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
             <Counter target={500} suffix="+" />
-            <p className="mt-2 text-indigo-300">Active Investors</p>
+            <p className="mt-2 text-gray-600">Active Investors</p>
           </div>
           <div>
             <Counter target={100} suffix="k+" />
-            <p className="mt-2 text-indigo-300">Total Payouts ($)</p>
+            <p className="mt-2 text-gray-600">Total Payouts ($)</p>
           </div>
           <div>
             <Counter target={6} />
-            <p className="mt-2 text-indigo-300">Plans Available</p>
+            <p className="mt-2 text-gray-600">Plans Available</p>
           </div>
           <div>
             <Counter target={98} suffix="%" />
-            <p className="mt-2 text-indigo-300">Customer Satisfaction</p>
+            <p className="mt-2 text-gray-600">Customer Satisfaction</p>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="w-full bg-gray-900 py-12">
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-gray-800 rounded-xl shadow card-hover">
-            <Shield className="h-8 w-8 text-indigo-400 mb-3" />
+          <div className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+            <Shield className="h-8 w-8 text-indigo-600 mb-3" />
             <h3 className="text-lg font-semibold mb-1">Secure</h3>
-            <p className="text-indigo-200">
+            <p className="text-gray-600">
               Top security practices protect your funds and data.
             </p>
           </div>
-          <div className="p-6 bg-gray-800 rounded-xl shadow card-hover">
-            <Clock className="h-8 w-8 text-indigo-400 mb-3" />
+          <div className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+            <Clock className="h-8 w-8 text-indigo-600 mb-3" />
             <h3 className="text-lg font-semibold mb-1">Fast Payouts</h3>
-            <p className="text-indigo-200">
+            <p className="text-gray-600">
               Quick withdrawals and transparent processing times.
             </p>
           </div>
-          <div className="p-6 bg-gray-800 rounded-xl shadow card-hover">
-            <TrendingUp className="h-8 w-8 text-indigo-400 mb-3" />
+          <div className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+            <TrendingUp className="h-8 w-8 text-indigo-600 mb-3" />
             <h3 className="text-lg font-semibold mb-1">High ROI</h3>
-            <p className="text-indigo-200">
+            <p className="text-gray-600">
               Plans designed for sustainable growth and returns.
             </p>
           </div>
@@ -170,29 +171,31 @@ export default function LandingPage() {
       </section>
 
       {/* Investment Plans */}
-      <section className="bg-gray-800 py-16">
+      <section className="bg-indigo-50 py-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-indigo-400">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900">
             Our Investment Plans
           </h2>
-          <p className="text-indigo-200 mb-10">
+          <p className="text-gray-600 mb-10">
             Flexible plans tailored to your financial goals. Pick the one that
             suits you best.
           </p>
 
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:grid sm:grid-cols-2 md:grid-cols-3 sm:gap-8 no-scrollbar">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className="min-w-[80%] sm:min-w-0 p-6 bg-gray-900 rounded-2xl shadow card-hover snap-center"
+                className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition"
               >
-                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                <p className="text-indigo-300 mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                  {plan.name}
+                </h3>
+                <p className="text-gray-600 mb-2">
                   Minimum Deposit:{" "}
                   <span className="font-semibold">${plan.minAmount}</span>
                 </p>
-                <p className="text-indigo-300 mb-2">ROI: {plan.roi}%</p>
-                <p className="text-indigo-300 mb-6">
+                <p className="text-gray-600 mb-2">ROI: {plan.roi}%</p>
+                <p className="text-gray-600 mb-6">
                   Duration: {plan.duration} days
                 </p>
                 <Link
@@ -208,47 +211,45 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-12 text-indigo-400">
+          <h2 className="text-3xl font-bold mb-12 text-gray-900">
             What Our Investors Say
           </h2>
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {testimonials.map((t, i) => (
               <div
                 key={i}
-                className="p-6 bg-gray-800 rounded-xl shadow card-hover"
+                className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition"
               >
                 <div className="mb-3 flex justify-center text-yellow-400">
                   {[...Array(5)].map((_, idx) => (
                     <Star key={idx} className="h-5 w-5 fill-yellow-400" />
                   ))}
                 </div>
-                <p className="text-indigo-200 italic mb-4">“{t.feedback}”</p>
-                <h4 className="font-semibold">{t.name}</h4>
-                <p className="text-sm text-indigo-400">{t.role}</p>
+                <p className="text-gray-600 italic mb-4">“{t.feedback}”</p>
+                <h4 className="font-semibold text-gray-800">{t.name}</h4>
+                <p className="text-sm text-gray-500">{t.role}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 📩 Contact Form */}
-      <section id="contact" className="py-16 bg-gray-800">
+      {/* Contact */}
+      <section id="contact" className="py-16 bg-indigo-50">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6 text-indigo-400">
-            Contact Us
-          </h2>
-          <form className="space-y-4 bg-gray-900 p-6 rounded-xl shadow">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">Contact Us</h2>
+          <form className="space-y-4 bg-white p-6 rounded-xl shadow">
             <input
               type="email"
               placeholder="Your Email"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-indigo-600 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
             <textarea
               placeholder="Your Message"
               rows="4"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-indigo-600 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
             ></textarea>
             <button
               type="button"
@@ -261,9 +262,9 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-indigo-400 text-sm border-t border-indigo-700">
+      <footer className="py-6 text-center text-gray-500 text-sm border-t border-gray-200">
         © {new Date().getFullYear()} CryptoBase. All rights reserved.
       </footer>
     </div>
   );
-}
+  }
