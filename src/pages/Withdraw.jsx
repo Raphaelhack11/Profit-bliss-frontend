@@ -9,6 +9,7 @@ export default function Withdraw() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadWallet();
@@ -23,15 +24,26 @@ export default function Withdraw() {
     }
   };
 
+  const validateAmount = (val) => {
+    if (val < 200) return "Minimum withdrawal is $200";
+    if (val > balance) return "Insufficient balance";
+    return "";
+  };
+
   const submit = async (e) => {
     e.preventDefault();
-    if (parseFloat(amount) > balance) {
-      return toast.error("Insufficient balance ❌");
+    const amt = parseFloat(amount);
+    const validation = validateAmount(amt);
+    if (validation) {
+      setError(validation);
+      return;
     }
+    setError("");
     setLoading(true);
+
     try {
       await API.post("/transactions/withdraw", {
-        amount: parseFloat(amount),
+        amount: amt,
         method,
         walletAddress: address,
       });
@@ -47,35 +59,38 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="max-w-lg w-full bg-white rounded-xl shadow-lg p-6 space-y-5">
+    <div className="min-h-screen bg-white text-gray-900 px-6 py-10">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-indigo-700">Withdraw Funds</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Available Balance:{" "}
-            <span className="font-semibold text-green-600">
-              ${balance.toFixed(2)}
-            </span>
-          </p>
-        </div>
+        <h2 className="text-3xl font-bold text-indigo-700 mb-2">
+          Withdraw Funds
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Available Balance:{" "}
+          <span className="font-semibold text-green-600">
+            ${balance.toFixed(2)}
+          </span>
+        </p>
 
         {/* Form */}
-        <form onSubmit={submit} className="space-y-4">
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Amount (USD)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
-          />
+        <form onSubmit={submit} className="space-y-6">
+          <div>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Amount (USD)"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              className="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          </div>
 
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value)}
-            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
           >
             <option value="Bitcoin">Bitcoin</option>
             <option value="Ethereum">Ethereum</option>
@@ -87,13 +102,13 @@ export default function Withdraw() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
-            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold hover:opacity-90 transition"
+            className="w-full p-4 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold hover:opacity-90 transition"
           >
             {loading ? "Submitting..." : "Withdraw"}
           </button>
@@ -101,4 +116,4 @@ export default function Withdraw() {
       </div>
     </div>
   );
-}
+            }
