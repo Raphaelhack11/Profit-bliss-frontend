@@ -24,7 +24,17 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      await API.post("/auth/register", form);
+      // 🚨 Ensure role is never included
+      const { name, email, password, country, phone } = form;
+
+      await API.post("/auth/register", {
+        name,
+        email,
+        password,
+        country,
+        phone,
+      });
+
       toast.success("Account created successfully. Please log in.");
       navigate("/login");
     } catch (err) {
@@ -112,4 +122,4 @@ export default function Signup() {
       </form>
     </div>
   );
-    }
+          }
