@@ -24,21 +24,25 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const { name, email, password, country, phone } = form;
+      const res = await API.post("/auth/register", form);
 
-      // ✅ must be /auth/register
-      await API.post("/auth/register", {
-        name,
-        email,
-        password,
-        country,
-        phone,
-      });
+      // ✅ Save token + role + user (same as login)
+      localStorage.setItem("pb_token", res.data.token);
+      localStorage.setItem("pb_role", res.data.user.role);
+      localStorage.setItem("pb_user", JSON.stringify(res.data.user));
 
-      toast.success("Account created successfully. Please log in.");
-      navigate("/login");
+      toast.success("Account created successfully ✅");
+
+      // ✅ Delay navigation so toast can appear first
+      setTimeout(() => {
+        if (res.data.user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      }, 500);
     } catch (err) {
-      toast.error(err.response?.data?.error || "Signup failed");
+      toast.error(err.response?.data?.error || "Signup failed ❌");
     } finally {
       setLoading(false);
     }
@@ -122,4 +126,4 @@ export default function Signup() {
       </form>
     </div>
   );
-}
+      }
