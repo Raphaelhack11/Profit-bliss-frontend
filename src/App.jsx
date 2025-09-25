@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from "react";
-import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -19,23 +19,16 @@ import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans"; // NEW
 
 export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
-  const navigate = useNavigate();
 
   // ✅ check if user is logged in
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
-
-  // ✅ logout handler
-  const handleLogout = () => {
-    localStorage.removeItem("pb_token");
-    localStorage.removeItem("pb_role");
-    navigate("/login", { replace: true });
-  };
 
   // ✅ Public routes (no BottomNav)
   const publicPaths = ["/", "/login", "/signup"];
@@ -46,22 +39,44 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-blue-800">
-      <main className={isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"}>
+      <main
+        className={
+          isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"
+        }
+      >
         <Routes>
           {/* Landing page */}
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <LandingPage />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <LandingPage />
+              )
+            }
           />
 
-          {/* Login & Signup redirect if already logged in */}
+          {/* Login & Signup */}
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Login />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <Login />
+              )
+            }
           />
           <Route
             path="/signup"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Signup />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <Signup />
+              )
+            }
           />
 
           {/* ✅ User Protected Routes */}
@@ -83,7 +98,7 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminDashboard onLogout={handleLogout} />
+                <AdminDashboard />
               )
             }
           />
@@ -95,7 +110,7 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminDeposits onLogout={handleLogout} />
+                <AdminDeposits />
               )
             }
           />
@@ -107,7 +122,19 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminWithdrawals onLogout={handleLogout} />
+                <AdminWithdrawals />
+              )
+            }
+          />
+          <Route
+            path="/admin/plans"
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminPlans />
               )
             }
           />
@@ -115,7 +142,11 @@ export default function App() {
           {/* Fallback */}
           <Route
             path="*"
-            element={<div className="p-8 text-center text-gray-600">Page not found</div>}
+            element={
+              <div className="p-8 text-center text-gray-600">
+                Page not found
+              </div>
+            }
           />
         </Routes>
       </main>
@@ -124,4 +155,4 @@ export default function App() {
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-  }
+}
