@@ -1,9 +1,10 @@
+// src/pages/admin/AdminWithdrawals.jsx
 import React, { useEffect, useState } from "react";
 import API from "../../api";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
-export default function AdminWithdrawals() {
+export default function AdminWithdrawals({ onLogout }) {
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +32,7 @@ export default function AdminWithdrawals() {
         await API.post(`/admin/withdrawals/${id}/reject`);
         toast.error("Withdrawal rejected ❌");
       }
-      loadWithdrawals(); // refresh list
+      loadWithdrawals();
     } catch (err) {
       toast.error(err.response?.data?.error || "Action failed ❌");
     }
@@ -42,16 +43,19 @@ export default function AdminWithdrawals() {
       {/* ✅ Top Nav */}
       <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">Admin - Withdrawals</h1>
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
           <Link to="/admin" className="text-gray-600 hover:text-indigo-600">
             Dashboard
           </Link>
-          <Link
-            to="/admin/deposits"
-            className="text-gray-600 hover:text-indigo-600"
-          >
+          <Link to="/admin/deposits" className="text-gray-600 hover:text-indigo-600">
             Deposits
           </Link>
+          <button
+            onClick={onLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -81,10 +85,7 @@ export default function AdminWithdrawals() {
               </thead>
               <tbody>
                 {withdrawals.map((w) => (
-                  <tr
-                    key={w.id}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
+                  <tr key={w.id} className="border-t hover:bg-gray-50 transition">
                     <td className="p-3">{w.user?.email}</td>
                     <td className="p-3 font-semibold">${w.amount}</td>
                     <td className="p-3">{w.method}</td>
@@ -102,9 +103,7 @@ export default function AdminWithdrawals() {
                         {w.status}
                       </span>
                     </td>
-                    <td className="p-3">
-                      {new Date(w.createdAt).toLocaleString()}
-                    </td>
+                    <td className="p-3">{new Date(w.createdAt).toLocaleString()}</td>
                     <td className="p-3 flex gap-2">
                       {w.status === "pending" && (
                         <>
@@ -132,4 +131,4 @@ export default function AdminWithdrawals() {
       </div>
     </div>
   );
-          }
+                          }
