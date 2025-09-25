@@ -1,9 +1,10 @@
+// src/pages/admin/AdminDeposits.jsx
 import React, { useEffect, useState } from "react";
 import API from "../../api";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
-export default function AdminDeposits() {
+export default function AdminDeposits({ onLogout }) {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +32,7 @@ export default function AdminDeposits() {
         await API.post(`/admin/deposits/${id}/reject`);
         toast.error("Deposit rejected ❌");
       }
-      loadDeposits(); // refresh list
+      loadDeposits();
     } catch (err) {
       toast.error(err.response?.data?.error || "Action failed ❌");
     }
@@ -42,16 +43,19 @@ export default function AdminDeposits() {
       {/* ✅ Top Nav */}
       <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">Admin - Deposits</h1>
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
           <Link to="/admin" className="text-gray-600 hover:text-indigo-600">
             Dashboard
           </Link>
-          <Link
-            to="/admin/withdrawals"
-            className="text-gray-600 hover:text-indigo-600"
-          >
+          <Link to="/admin/withdrawals" className="text-gray-600 hover:text-indigo-600">
             Withdrawals
           </Link>
+          <button
+            onClick={onLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -80,10 +84,7 @@ export default function AdminDeposits() {
               </thead>
               <tbody>
                 {deposits.map((d) => (
-                  <tr
-                    key={d.id}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
+                  <tr key={d.id} className="border-t hover:bg-gray-50 transition">
                     <td className="p-3">{d.user?.email}</td>
                     <td className="p-3 font-semibold">${d.amount}</td>
                     <td className="p-3">{d.method}</td>
@@ -100,9 +101,7 @@ export default function AdminDeposits() {
                         {d.status}
                       </span>
                     </td>
-                    <td className="p-3">
-                      {new Date(d.createdAt).toLocaleString()}
-                    </td>
+                    <td className="p-3">{new Date(d.createdAt).toLocaleString()}</td>
                     <td className="p-3 flex gap-2">
                       {d.status === "pending" && (
                         <>
@@ -130,4 +129,4 @@ export default function AdminDeposits() {
       </div>
     </div>
   );
-  }
+              }
