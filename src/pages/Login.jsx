@@ -12,21 +12,25 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const res = await API.post("/auth/login", { email, password });
 
-      // ✅ Save token + role
+      // ✅ Save token + role + user
       localStorage.setItem("pb_token", res.data.token);
       localStorage.setItem("pb_role", res.data.user.role);
+      localStorage.setItem("pb_user", JSON.stringify(res.data.user));
 
       toast.success("Login successful ✅");
 
-      // ✅ Redirect based on role
-      if (res.data.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      // ✅ Delay navigation so toast can appear first
+      setTimeout(() => {
+        if (res.data.user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      }, 500);
     } catch (err) {
       toast.error(err.response?.data?.error || "Login failed ❌");
     } finally {
@@ -44,7 +48,6 @@ export default function Login() {
           Log in to access your dashboard
         </p>
 
-        {/* ✅ Ensure form uses onSubmit */}
         <form onSubmit={submit} className="space-y-5">
           <input
             type="email"
@@ -64,7 +67,7 @@ export default function Login() {
           />
 
           <button
-            type="submit" // ✅ Must be submit
+            type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-lg font-semibold shadow transition ${
               loading
@@ -85,4 +88,4 @@ export default function Login() {
       </div>
     </div>
   );
-      }
+        }
