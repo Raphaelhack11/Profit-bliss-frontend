@@ -24,10 +24,10 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      // 🚨 Ensure role is never included
       const { name, email, password, country, phone } = form;
 
-      await API.post("/auth/register", {
+      // ✅ fixed endpoint -> must match backend
+      await API.post("/auth/signup", {
         name,
         email,
         password,
@@ -122,4 +122,4 @@ export default function Signup() {
       </form>
     </div>
   );
-          }
+      }
