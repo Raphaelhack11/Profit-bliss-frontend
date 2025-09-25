@@ -1,51 +1,36 @@
+// src/pages/admin/AdminDashboard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
-const AdminDashboard = () => {
+export default function AdminDashboard({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ✅ Top Navigation */}
+      {/* ✅ Top Nav */}
       <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">Admin Dashboard</h1>
-        <div className="space-x-4">
-          <Link
-            to="/admin/deposits"
-            className="text-gray-600 hover:text-indigo-600"
-          >
+        <div className="space-x-4 flex items-center">
+          <Link to="/admin/deposits" className="text-gray-600 hover:text-indigo-600">
             Deposits
           </Link>
-          <Link
-            to="/admin/withdrawals"
-            className="text-gray-600 hover:text-indigo-600"
-          >
+          <Link to="/admin/withdrawals" className="text-gray-600 hover:text-indigo-600">
             Withdrawals
           </Link>
-          <Link
-            to="/"
-            className="text-gray-600 hover:text-red-600"
+          <button
+            onClick={onLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
             Logout
-          </Link>
+          </button>
         </div>
       </nav>
 
-      {/* ✅ Stats Section */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-gray-600">Total Users</h2>
-          <p className="text-2xl font-bold text-indigo-600">124</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-gray-600">Pending Deposits</h2>
-          <p className="text-2xl font-bold text-yellow-600">8</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-gray-600">Pending Withdrawals</h2>
-          <p className="text-2xl font-bold text-red-600">5</p>
-        </div>
+      {/* ✅ Content */}
+      <div className="p-6">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Welcome, Admin 👋
+        </h2>
+        <p className="text-gray-600">Use the navigation above to manage deposits and withdrawals.</p>
       </div>
     </div>
   );
-};
-
-export default AdminDashboard;
+}
