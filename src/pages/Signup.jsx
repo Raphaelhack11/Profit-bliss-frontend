@@ -26,8 +26,8 @@ export default function Signup() {
     try {
       const { name, email, password, country, phone } = form;
 
-      // ✅ fixed endpoint -> must match backend
-      await API.post("/auth/signup", {
+      // ✅ must be /auth/register
+      await API.post("/auth/register", {
         name,
         email,
         password,
@@ -122,4 +122,4 @@ export default function Signup() {
       </form>
     </div>
   );
-      }
+}
