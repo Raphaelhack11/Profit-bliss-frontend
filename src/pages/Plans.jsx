@@ -32,12 +32,20 @@ export default function Plans() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan) => (
             <div
-              key={plan._id}
+              key={plan.id} // ✅ Use plan.id since Prisma uses UUID
               className="p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition bg-white"
             >
               <h3 className="text-xl font-semibold text-indigo-700 mb-2">
                 {plan.name}
               </h3>
+
+              {/* ✅ Show description if available */}
+              {plan.description && (
+                <p className="text-gray-500 text-sm mb-3">
+                  {plan.description}
+                </p>
+              )}
+
               <p className="text-gray-600 mb-1">Minimum: ${plan.minAmount}</p>
               <p className="text-gray-600 mb-1">ROI: {plan.roi}%</p>
               <p className="text-gray-600 mb-4">
@@ -48,7 +56,7 @@ export default function Plans() {
                 onClick={async () => {
                   try {
                     await API.post("/investments/subscribe", {
-                      planId: plan._id,
+                      planId: plan.id,
                       amount: plan.minAmount,
                     });
                     toast.success("Investment started ✅");
@@ -68,4 +76,4 @@ export default function Plans() {
       </div>
     </div>
   );
-              }
+    }
