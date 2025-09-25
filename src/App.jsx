@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -23,11 +23,19 @@ import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
+  const navigate = useNavigate();
 
   // ✅ check if user is logged in
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
+
+  // ✅ logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_role");
+    navigate("/login", { replace: true });
+  };
 
   // ✅ Public routes (no BottomNav)
   const publicPaths = ["/", "/login", "/signup"];
@@ -75,7 +83,7 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminDashboard />
+                <AdminDashboard onLogout={handleLogout} />
               )
             }
           />
@@ -87,7 +95,7 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminDeposits />
+                <AdminDeposits onLogout={handleLogout} />
               )
             }
           />
@@ -99,7 +107,7 @@ export default function App() {
               ) : !isAdmin ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <AdminWithdrawals />
+                <AdminWithdrawals onLogout={handleLogout} />
               )
             }
           />
@@ -116,4 +124,4 @@ export default function App() {
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-            }
+  }
