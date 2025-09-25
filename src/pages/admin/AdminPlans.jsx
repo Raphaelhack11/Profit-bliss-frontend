@@ -39,11 +39,9 @@ export default function AdminPlans() {
     e.preventDefault();
     try {
       if (editingPlan) {
-        // Update plan
         await API.put(`/admin/plans/${editingPlan.id}`, form);
         toast.success("Plan updated ✅");
       } else {
-        // Create new plan
         await API.post("/admin/plans", form);
         toast.success("Plan created ✅");
       }
@@ -51,7 +49,7 @@ export default function AdminPlans() {
       setEditingPlan(null);
       loadPlans();
     } catch (err) {
-      toast.error(err.response?.data?.error || "Action failed ❌");
+      toast.error(err.response?.data?.error || "Failed to save plan ❌");
     }
   };
 
@@ -66,24 +64,13 @@ export default function AdminPlans() {
     });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this plan?")) return;
-    try {
-      await API.delete(`/admin/plans/${id}`);
-      toast.success("Plan deleted ❌");
-      loadPlans();
-    } catch (err) {
-      toast.error("Failed to delete plan");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ✅ Top Nav */}
       <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Admin - Manage Plans</h1>
+        <h1 className="text-xl font-bold text-gray-800">Admin - Plans</h1>
         <div className="space-x-4">
-          <Link to="/admin" className="text-gray-600 hover:text-indigo-600">
+          <Link to="/admin/dashboard" className="text-gray-600 hover:text-indigo-600">
             Dashboard
           </Link>
           <Link to="/admin/deposits" className="text-gray-600 hover:text-indigo-600">
@@ -96,11 +83,12 @@ export default function AdminPlans() {
       </nav>
 
       {/* ✅ Form */}
-      <div className="p-6 max-w-2xl mx-auto">
-        <h2 className="text-lg font-semibold mb-4">
+      <div className="p-6 max-w-lg mx-auto bg-white shadow rounded-lg mt-6">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
           {editingPlan ? "Edit Plan" : "Add New Plan"}
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
@@ -128,7 +116,6 @@ export default function AdminPlans() {
           />
           <input
             type="number"
-            step="0.01"
             name="roi"
             placeholder="ROI (%)"
             value={form.roi}
@@ -148,75 +135,41 @@ export default function AdminPlans() {
 
           <button
             type="submit"
-            className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
           >
             {editingPlan ? "Update Plan" : "Create Plan"}
           </button>
-          {editingPlan && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingPlan(null);
-                setForm({ name: "", description: "", minAmount: "", roi: "", duration: "" });
-              }}
-              className="ml-2 px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-          )}
         </form>
       </div>
 
-      {/* ✅ Plans Table */}
+      {/* ✅ Plans List */}
       <div className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Available Plans</h2>
-
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">All Plans</h2>
         {loading ? (
           <p>Loading...</p>
         ) : plans.length === 0 ? (
           <p className="text-gray-500">No plans found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white shadow rounded-lg">
-              <thead>
-                <tr className="bg-gray-100 text-left text-gray-600">
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Description</th>
-                  <th className="p-3">Min Amount</th>
-                  <th className="p-3">ROI (%)</th>
-                  <th className="p-3">Duration (days)</th>
-                  <th className="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plans.map((p) => (
-                  <tr key={p.id} className="border-t hover:bg-gray-50 transition">
-                    <td className="p-3">{p.name}</td>
-                    <td className="p-3">{p.description || "—"}</td>
-                    <td className="p-3 font-semibold">${p.minAmount}</td>
-                    <td className="p-3">{p.roi}%</td>
-                    <td className="p-3">{p.duration} days</td>
-                    <td className="p-3 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(p)}
-                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-4">
+            {plans.map((plan) => (
+              <div key={plan.id} className="p-4 bg-white shadow rounded-lg">
+                <h3 className="font-bold text-indigo-700">{plan.name}</h3>
+                <p className="text-gray-600 text-sm">{plan.description}</p>
+                <p className="mt-1 text-gray-700">
+                  Min: ${plan.minAmount} | ROI: {plan.roi}% | Duration:{" "}
+                  {plan.duration} days
+                </p>
+                <button
+                  onClick={() => handleEdit(plan)}
+                  className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
     </div>
   );
-}
+        }
