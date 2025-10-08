@@ -24,13 +24,10 @@ export default function Signup() {
 
     try {
       const res = await API.post("/auth/register", form);
+      toast.success(res.data.message || "Account created! Please verify 📩");
 
-      toast.success("Account created! Please check your email to verify 📩");
-
-      // ✅ Redirect to verify notice page
-      setTimeout(() => {
-        navigate("/verify-notice");
-      }, 500);
+      // ✅ Redirect to verification page with email
+      navigate("/verify-email", { state: { email: form.email } });
     } catch (err) {
       toast.error(err.response?.data?.error || "Signup failed ❌");
     } finally {
@@ -116,4 +113,4 @@ export default function Signup() {
       </form>
     </div>
   );
-          }
+        }
