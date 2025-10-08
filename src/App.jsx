@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
@@ -19,22 +18,25 @@ import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
-import AdminPlans from "./pages/admin/AdminPlans"; // NEW
+import AdminPlans from "./pages/admin/AdminPlans";
+
+// ✅ New page for email verification notice
+import VerifyNotice from "./pages/VerifyNotice";
 
 export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // ✅ check if user is logged in
+  // ✅ Check if user is logged in
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
 
   // ✅ Public routes (no BottomNav)
-  const publicPaths = ["/", "/login", "/signup"];
+  const publicPaths = ["/", "/login", "/signup", "/verify-notice"];
   const isPublic = publicPaths.includes(pathname);
 
-  // ✅ default home redirect based on role
+  // ✅ Default home redirect based on role
   const defaultHome = isAdmin ? "/admin/dashboard" : "/dashboard";
 
   return (
@@ -78,6 +80,9 @@ export default function App() {
               )
             }
           />
+
+          {/* ✅ New verification page */}
+          <Route path="/verify-notice" element={<VerifyNotice />} />
 
           {/* ✅ User Protected Routes */}
           <Route element={<ProtectedRoute />}>
@@ -155,4 +160,4 @@ export default function App() {
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-}
+          }
