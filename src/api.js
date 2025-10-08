@@ -2,11 +2,11 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL: "https://profit-bliss-backend-57u2.onrender.com", // 👈 your Render backend
   headers: { "Content-Type": "application/json" },
 });
 
-// ✅ Attach token if present
+// ✅ Automatically attach token if it exists
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("pb_token");
   if (token) {
