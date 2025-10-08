@@ -9,7 +9,6 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
-
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
@@ -20,20 +19,20 @@ import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// ✅ New page for email verification notice
-import VerifyNotice from "./pages/VerifyNotice";
+// ✅ New email verification page
+import VerifyEmail from "./pages/VerifyEmail";
 
 export default function App() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // ✅ Check if user is logged in
+  // ✅ Auth & role checks
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
 
   // ✅ Public routes (no BottomNav)
-  const publicPaths = ["/", "/login", "/signup", "/verify-notice"];
+  const publicPaths = ["/", "/login", "/signup", "/verify-email"];
   const isPublic = publicPaths.includes(pathname);
 
   // ✅ Default home redirect based on role
@@ -47,7 +46,7 @@ export default function App() {
         }
       >
         <Routes>
-          {/* Landing page */}
+          {/* Landing Page */}
           <Route
             path="/"
             element={
@@ -82,7 +81,7 @@ export default function App() {
           />
 
           {/* ✅ New verification page */}
-          <Route path="/verify-notice" element={<VerifyNotice />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* ✅ User Protected Routes */}
           <Route element={<ProtectedRoute />}>
@@ -156,8 +155,8 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* ✅ Only show BottomNav when logged in & not on login/signup and not admin */}
+      {/* ✅ Only show BottomNav for logged-in, non-admin users */}
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
-          }
+}
