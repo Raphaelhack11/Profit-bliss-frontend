@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
@@ -26,20 +25,11 @@ export default function Signup() {
     try {
       const res = await API.post("/auth/register", form);
 
-      // ✅ Save token + role + user (same as login)
-      localStorage.setItem("pb_token", res.data.token);
-      localStorage.setItem("pb_role", res.data.user.role);
-      localStorage.setItem("pb_user", JSON.stringify(res.data.user));
+      toast.success("Account created! Please check your email to verify 📩");
 
-      toast.success("Account created successfully ✅");
-
-      // ✅ Delay navigation so toast can appear first
+      // ✅ Redirect to verify notice page
       setTimeout(() => {
-        if (res.data.user.role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/dashboard");
-        }
+        navigate("/verify-notice");
       }, 500);
     } catch (err) {
       toast.error(err.response?.data?.error || "Signup failed ❌");
@@ -126,4 +116,4 @@ export default function Signup() {
       </form>
     </div>
   );
-      }
+          }
