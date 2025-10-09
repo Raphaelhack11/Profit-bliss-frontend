@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import {
   Wallet,
@@ -9,8 +9,11 @@ import {
 } from "lucide-react";
 import API from "../api";
 import toast from "react-hot-toast";
+import { AuthContext } from "../App";
 
 export default function Dashboard() {
+  const { user } = useContext(AuthContext);
+
   const [wallet, setWallet] = useState(null);
   const [activeInvestments, setActiveInvestments] = useState(null);
   const [history, setHistory] = useState(null);
@@ -25,16 +28,11 @@ export default function Dashboard() {
 
   // Fetch data on mount
   useEffect(() => {
-    const token = localStorage.getItem("pb_token");
-    if (!token) return;
+    if (!user) return;
 
-    Promise.all([
-      fetchWallet(),
-      fetchActiveInvestments(),
-      fetchHistory(),
-      fetchPlans(),
-    ]).finally(() => setPageLoading(false));
-  }, []);
+    Promise.all([fetchWallet(), fetchActiveInvestments(), fetchHistory(), fetchPlans()])
+      .finally(() => setPageLoading(false));
+  }, [user]);
 
   async function fetchWallet() {
     try {
@@ -276,106 +274,4 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <p className="text-gray-600 mt-2">Amount: ${inv.amount}</p>
-                <p className="text-gray-600">ROI: {inv.plan?.roi}%</p>
-                <p className="text-gray-600">
-                  Duration: {inv.plan?.duration} days
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Plans */}
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          Available Plans
-        </h2>
-        {!plans ? (
-          <div className="grid gap-6">
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        ) : plans.length === 0 ? (
-          <p className="text-gray-500">No plans available.</p>
-        ) : (
-          <div className="grid gap-6">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className="p-6 bg-white rounded-2xl shadow border border-gray-100"
-              >
-                <h3 className="text-lg font-semibold text-indigo-700">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-600">{plan.description}</p>
-                <p className="text-gray-600">ROI: {plan.roi}%</p>
-                <p className="text-gray-600">Duration: {plan.duration} days</p>
-                <p className="text-gray-600">Minimum: ${plan.minAmount}</p>
-
-                <button
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    setShowModal(true);
-                  }}
-                  className="mt-4 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
-                >
-                  Invest Now
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      {showModal && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-xl font-bold text-indigo-700 mb-4">
-              Invest in {selectedPlan.name}
-            </h2>
-            <p className="text-gray-600 mb-2">{selectedPlan.description}</p>
-            <p className="text-gray-600 mb-2">ROI: {selectedPlan.roi}%</p>
-            <p className="text-gray-600 mb-2">
-              Duration: {selectedPlan.duration} days
-            </p>
-            <p className="text-gray-600 mb-4">
-              Minimum Amount: ${selectedPlan.minAmount}
-            </p>
-
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Enter amount (min $${selectedPlan.minAmount})`}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                disabled={loading}
-                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleInvest}
-                disabled={loading}
-                className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  "Confirm"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-        }
+                <p className="text-gray-600">ROI: {inv.plan
