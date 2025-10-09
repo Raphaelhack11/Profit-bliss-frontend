@@ -11,14 +11,14 @@ const navItems = [
 
 export default function Navbar() {
   return (
-    <nav className="fixed bottom-0 w-full bg-white border-t flex justify-around py-2 shadow-md">
+    <nav className="fixed bottom-0 w-full bg-indigo-600 flex justify-around py-2 shadow-lg">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           className={({ isActive }) =>
             `flex flex-col items-center text-sm ${
-              isActive ? "text-blue-600" : "text-gray-500"
+              isActive ? "text-white" : "text-indigo-200"
             }`
           }
         >
@@ -28,4 +28,4 @@ export default function Navbar() {
       ))}
     </nav>
   );
-      }
+}
