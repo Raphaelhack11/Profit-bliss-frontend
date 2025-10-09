@@ -1,15 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
-import { AuthContext } from "../authContext";
+import { useAuth } from "../authContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { setUser } = useAuth(); // useAuth hook
 
   const submit = async (e) => {
     e.preventDefault();
@@ -28,6 +28,7 @@ export default function Login() {
 
       toast.success("Login successful ✅");
 
+      // ✅ Delay navigation so toast can appear first
       setTimeout(() => {
         if (res.data.user.role === "admin") {
           navigate("/admin/dashboard");
