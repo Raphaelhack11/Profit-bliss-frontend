@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
+import { AuthContext } from "../App";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -21,9 +23,11 @@ export default function Login() {
       localStorage.setItem("pb_role", res.data.user.role);
       localStorage.setItem("pb_user", JSON.stringify(res.data.user));
 
+      // ✅ Update context
+      setUser(res.data.user);
+
       toast.success("Login successful ✅");
 
-      // ✅ Delay navigation so toast can appear first
       setTimeout(() => {
         if (res.data.user.role === "admin") {
           navigate("/admin/dashboard");
@@ -81,11 +85,14 @@ export default function Login() {
 
         <p className="mt-6 text-center text-gray-600">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-indigo-600 font-semibold hover:underline">
+          <Link
+            to="/signup"
+            className="text-indigo-600 font-semibold hover:underline"
+          >
             Sign up
           </Link>
         </p>
       </div>
     </div>
   );
-        }
+}
