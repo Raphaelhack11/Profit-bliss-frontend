@@ -1,13 +1,12 @@
-import React, { useContext } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { AuthContext } from "../App";
+import React from "react";
+import { Outlet, Navigate } from "react-router-dom";
+import { useAuth } from "../authContext";
 
 export default function ProtectedRoute() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useAuth();
 
-  // ✅ Wait for user to be hydrated from localStorage
-  if (user === null) return <div className="p-8 text-center">Loading...</div>;
-
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
+
   return <Outlet />;
 }
