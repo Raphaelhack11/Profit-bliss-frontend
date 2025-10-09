@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
-import { AuthContext } from "../App";
+import { AuthContext } from "../authContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
