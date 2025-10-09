@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
+import { useAuth } from "../authContext";
 
 export default function Login() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,26 +20,20 @@ export default function Login() {
       console.log("✅ Login response:", res.data);
 
       const { token, user } = res.data;
-      if (!token || !user) throw new Error("Invalid response from server");
+      login(token, user); // ✅ update context + localStorage
 
-      localStorage.setItem("pb_token", token);
-      localStorage.setItem("pb_role", user.role);
-      localStorage.setItem("pb_user", JSON.stringify(user));
-
-      toast.success("Login successful ✅");
-
+      // ✅ Redirect based on role
       setTimeout(() => {
-        navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard");
+        if (user.role === "admin") navigate("/admin/dashboard");
+        else navigate("/dashboard");
       }, 500);
     } catch (err) {
-      console.error("❌ Login error:", err.response?.data || err.message);
-
-      const msg =
+      console.error("❌ Login error:", err.response || err);
+      const message =
         err.response?.data?.error ||
         err.response?.data?.message ||
         "Login failed ❌";
-
-      toast.error(msg);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -96,4 +92,4 @@ export default function Login() {
       </div>
     </div>
   );
-                           }
+                 }
