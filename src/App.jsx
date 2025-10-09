@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext } from "react";
+import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -13,30 +13,23 @@ import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 
-// ✅ Admin pages
+// Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// ✅ New email verification page
+// New verification page
 import VerifyEmail from "./pages/VerifyEmail";
 
-// ✅ Create Auth context
-export const AuthContext = createContext();
+// ✅ AuthProvider
+import { AuthProvider, useAuth } from "./authContext";
 
-export default function App() {
+function AppRoutes() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const [user, setUser] = useState(null);
-
-  // ✅ Hydrate user from localStorage on page load
-  useEffect(() => {
-    const storedUser = localStorage.getItem("pb_user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
-
+  const { user } = useAuth();
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
@@ -46,114 +39,74 @@ export default function App() {
   const defaultHome = isAdmin ? "/admin/dashboard" : "/dashboard";
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
-      <div className="min-h-screen bg-white text-blue-800">
-        <main
-          className={
-            isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"
-          }
-        >
-          <Routes>
-            {/* Landing Page */}
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? <Navigate to={defaultHome} replace /> : <LandingPage />
-              }
-            />
+    <div className="min-h-screen bg-white text-blue-800">
+      <main className={isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"}>
+        <Routes>
+          {/* Landing Page */}
+          <Route
+            path="/"
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <LandingPage />}
+          />
 
-            {/* Login & Signup */}
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? <Navigate to={defaultHome} replace /> : <Login />
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                isAuthenticated ? <Navigate to={defaultHome} replace /> : <Signup />
-              }
-            />
+          {/* Login & Signup */}
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Login />}
+          />
+          <Route
+            path="/signup"
+            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Signup />}
+          />
 
-            {/* ✅ New verification page */}
-            <Route path="/verify-email" element={<VerifyEmail />} />
+          {/* Verification */}
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
-            {/* ✅ User Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/plans" element={<Plans />} />
-              <Route path="/deposit" element={<Deposit />} />
-              <Route path="/withdraw" element={<Withdraw />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
+          {/* User Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/plans" element={<Plans />} />
+            <Route path="/deposit" element={<Deposit />} />
+            <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
 
-            {/* ✅ Admin Protected Routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                !isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : !isAdmin ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <AdminDashboard />
-                )
-              }
-            />
-            <Route
-              path="/admin/deposits"
-              element={
-                !isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : !isAdmin ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <AdminDeposits />
-                )
-              }
-            />
-            <Route
-              path="/admin/withdrawals"
-              element={
-                !isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : !isAdmin ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <AdminWithdrawals />
-                )
-              }
-            />
-            <Route
-              path="/admin/plans"
-              element={
-                !isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : !isAdmin ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <AdminPlans />
-                )
-              }
-            />
+          {/* Admin Protected Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminDashboard />}
+          />
+          <Route
+            path="/admin/deposits"
+            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminDeposits />}
+          />
+          <Route
+            path="/admin/withdrawals"
+            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminWithdrawals />}
+          />
+          <Route
+            path="/admin/plans"
+            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminPlans />}
+          />
 
-            {/* Fallback */}
-            <Route
-              path="*"
-              element={
-                <div className="p-8 text-center text-gray-600">
-                  Page not found
-                </div>
-              }
-            />
-          </Routes>
-        </main>
+          {/* Fallback */}
+          <Route
+            path="*"
+            element={<div className="p-8 text-center text-gray-600">Page not found</div>}
+          />
+        </Routes>
+      </main>
 
-        {/* ✅ Only show BottomNav for logged-in, non-admin users */}
-        {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
-      </div>
-    </AuthContext.Provider>
+      {/* BottomNav */}
+      {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
+    </div>
   );
-  }
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
