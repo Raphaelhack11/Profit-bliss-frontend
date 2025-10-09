@@ -1,42 +1,37 @@
-import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import {
-  Wallet,
-  TrendingUp,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Loader2,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Wallet, TrendingUp, ArrowDownCircle, ArrowUpCircle, Loader2, LogOut } from "lucide-react";
 import API from "../api";
 import toast from "react-hot-toast";
-import { AuthContext } from "../App";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [wallet, setWallet] = useState(null);
   const [activeInvestments, setActiveInvestments] = useState(null);
   const [history, setHistory] = useState(null);
   const [plans, setPlans] = useState(null);
 
-  // Modal state
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
-  // Fetch data on mount
-  useEffect(() => {
-    if (!user) return;
+  const token = localStorage.getItem("pb_token");
 
-    Promise.all([fetchWallet(), fetchActiveInvestments(), fetchHistory(), fetchPlans()])
-      .finally(() => setPageLoading(false));
-  }, [user]);
+  // ✅ Fetch all data on mount
+  useEffect(() => {
+    if (!token) return;
+
+    Promise.all([fetchWallet(), fetchActiveInvestments(), fetchHistory(), fetchPlans()]).finally(() =>
+      setPageLoading(false)
+    );
+  }, []);
 
   async function fetchWallet() {
     try {
-      const res = await API.get("/wallet");
+      const res = await API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } });
       setWallet(res.data);
     } catch {
       toast.error("Failed to load wallet ❌");
@@ -45,7 +40,7 @@ export default function Dashboard() {
 
   async function fetchActiveInvestments() {
     try {
-      const res = await API.get("/investments/active");
+      const res = await API.get("/investments/active", { headers: { Authorization: `Bearer ${token}` } });
       setActiveInvestments(res.data);
     } catch {
       toast.error("Failed to load active investments ❌");
@@ -54,7 +49,7 @@ export default function Dashboard() {
 
   async function fetchHistory() {
     try {
-      const res = await API.get("/investments/history");
+      const res = await API.get("/investments/history", { headers: { Authorization: `Bearer ${token}` } });
       setHistory(res.data);
     } catch {
       toast.error("Failed to load history ❌");
@@ -63,7 +58,7 @@ export default function Dashboard() {
 
   async function fetchPlans() {
     try {
-      const res = await API.get("/plans");
+      const res = await API.get("/plans", { headers: { Authorization: `Bearer ${token}` } });
       setPlans(res.data);
     } catch {
       toast.error("Failed to load plans ❌");
@@ -72,19 +67,18 @@ export default function Dashboard() {
 
   async function handleInvest() {
     if (!selectedPlan) return;
-    const min = selectedPlan.minAmount;
-
-    if (Number(amount) < min) {
-      toast.error(`Minimum investment is $${min}`);
+    if (Number(amount) < selectedPlan.minAmount) {
+      toast.error(`Minimum investment is $${selectedPlan.minAmount}`);
       return;
     }
 
     try {
       setLoading(true);
-      await API.post("/investments", {
-        planId: selectedPlan.id,
-        amount: Number(amount),
-      });
+      await API.post(
+        "/investments",
+        { planId: selectedPlan.id, amount: Number(amount) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       toast.success("✅ Investment started!");
       setShowModal(false);
       setAmount("");
@@ -98,6 +92,13 @@ export default function Dashboard() {
     }
   }
 
+  function handleLogout() {
+    localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_user");
+    localStorage.removeItem("pb_role");
+    navigate("/login");
+  }
+
   // Skeleton Loader
   const SkeletonCard = () => (
     <div className="p-6 rounded-2xl shadow bg-gray-100 animate-pulse">
@@ -107,7 +108,7 @@ export default function Dashboard() {
     </div>
   );
 
-  // Progress bar component
+  // Investment progress bar
   function InvestmentProgress({ investment }) {
     const [progress, setProgress] = useState(0);
 
@@ -132,24 +133,18 @@ export default function Dashboard() {
     return (
       <div className="mt-3">
         <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-indigo-600 transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
+          <div className="h-full bg-indigo-600 transition-all duration-500" style={{ width: `${progress}%` }}></div>
         </div>
         <p className="text-sm text-gray-600 mt-1">{progress.toFixed(1)}% complete</p>
       </div>
     );
   }
 
-  // Global Loader
   if (pageLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-700">
         <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-4" />
-        <p className="animate-pulse text-lg font-medium">
-          Loading your dashboard...
-        </p>
+        <p className="animate-pulse text-lg font-medium">Loading your dashboard...</p>
       </div>
     );
   }
@@ -157,25 +152,29 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white text-gray-900 px-6 py-10">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-indigo-700">Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-indigo-700">Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+          >
+            <LogOut className="h-5 w-5" /> Logout
+          </button>
+        </div>
 
-        {/* Wallet Summary */}
+        {/* Wallet */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
           {wallet ? (
             <>
               <div className="p-6 rounded-2xl shadow bg-indigo-50 border border-indigo-100">
                 <Wallet className="h-8 w-8 text-indigo-600 mb-2" />
                 <p className="text-gray-600">Wallet Balance</p>
-                <h2 className="text-2xl font-bold text-indigo-700">
-                  ${wallet.balance}
-                </h2>
+                <h2 className="text-2xl font-bold text-indigo-700">${wallet.balance}</h2>
               </div>
               <div className="p-6 rounded-2xl shadow bg-green-50 border border-green-100">
                 <TrendingUp className="h-8 w-8 text-green-600 mb-2" />
                 <p className="text-gray-600">Total Profit</p>
-                <h2 className="text-2xl font-bold text-green-700">
-                  ${wallet.profit || 0}
-                </h2>
+                <h2 className="text-2xl font-bold text-green-700">${wallet.profit || 0}</h2>
               </div>
               <div className="p-6 rounded-2xl shadow bg-yellow-50 border border-yellow-100">
                 <ArrowUpCircle className="h-8 w-8 text-yellow-600 mb-2" />
@@ -194,7 +193,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick actions */}
         <div className="flex gap-4 mb-10">
           <Link
             to="/deposit"
@@ -210,7 +209,7 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Active Investments */}
+        {/* Active investments */}
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Active Investments</h2>
         {!activeInvestments ? (
           <SkeletonCard />
@@ -219,10 +218,7 @@ export default function Dashboard() {
         ) : (
           <div className="grid gap-6 mb-12">
             {activeInvestments.map((inv) => (
-              <div
-                key={inv.id}
-                className="p-6 bg-white rounded-2xl shadow border border-gray-100"
-              >
+              <div key={inv.id} className="p-6 bg-white rounded-2xl shadow border border-gray-100">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold text-indigo-700">{inv.plan?.name}</h3>
                   <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
@@ -238,7 +234,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Investment History */}
+        {/* Investment history */}
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Investment History</h2>
         {!history ? (
           <SkeletonCard />
@@ -266,7 +262,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Available Plans */}
+        {/* Plans */}
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Available Plans</h2>
         {!plans ? (
           <div className="grid gap-6">
@@ -284,6 +280,7 @@ export default function Dashboard() {
                 <p className="text-gray-600">ROI: {plan.roi}%</p>
                 <p className="text-gray-600">Duration: {plan.duration} days</p>
                 <p className="text-gray-600">Minimum: ${plan.minAmount}</p>
+
                 <button
                   onClick={() => {
                     setSelectedPlan(plan);
@@ -299,13 +296,11 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Investment Modal */}
+      {/* Modal */}
       {showModal && selectedPlan && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-            <h2 className="text-xl font-bold text-indigo-700 mb-4">
-              Invest in {selectedPlan.name}
-            </h2>
+            <h2 className="text-xl font-bold text-indigo-700 mb-4">Invest in {selectedPlan.name}</h2>
             <p className="text-gray-600 mb-2">{selectedPlan.description}</p>
             <p className="text-gray-600 mb-2">ROI: {selectedPlan.roi}%</p>
             <p className="text-gray-600 mb-2">Duration: {selectedPlan.duration} days</p>
@@ -347,4 +342,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-                 }
+  }
