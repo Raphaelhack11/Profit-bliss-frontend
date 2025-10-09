@@ -1,6 +1,8 @@
 import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "./authContext";
 
+// Pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -9,29 +11,31 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
+import LandingPage from "./pages/LandingPage";
 import BottomNav from "./components/BottomNav";
 import ProtectedRoute from "./components/ProtectedRoute";
-import LandingPage from "./pages/LandingPage";
 
-// Admin pages
+// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// Verification page
+// Verify
 import VerifyEmail from "./pages/VerifyEmail";
-
-// ✅ Auth context (optional if you already added)
-import { AuthProvider, useAuth } from "./authContext";
 
 function AppRoutes() {
   const location = useLocation();
   const pathname = location.pathname;
 
+  const { user, loading } = useAuth();
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
+
+  if (loading) {
+    return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  }
 
   const publicPaths = ["/", "/login", "/signup", "/verify-email"];
   const isPublic = publicPaths.includes(pathname);
@@ -39,11 +43,7 @@ function AppRoutes() {
 
   return (
     <div className="min-h-screen bg-white text-blue-800">
-      <main
-        className={
-          isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"
-        }
-      >
+      <main className={isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"}>
         <Routes>
           {/* Landing Page */}
           <Route
@@ -57,7 +57,7 @@ function AppRoutes() {
             }
           />
 
-          {/* Login & Signup */}
+          {/* Auth */}
           <Route
             path="/login"
             element={
@@ -79,10 +79,10 @@ function AppRoutes() {
             }
           />
 
-          {/* Email Verification */}
+          {/* Verify */}
           <Route path="/verify-email" element={<VerifyEmail />} />
 
-          {/* User Protected Routes */}
+          {/* Protected (User) */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<Plans />} />
@@ -92,7 +92,7 @@ function AppRoutes() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          {/* Admin Protected Routes */}
+          {/* Admin */}
           <Route
             path="/admin/dashboard"
             element={
@@ -145,16 +145,12 @@ function AppRoutes() {
           {/* Fallback */}
           <Route
             path="*"
-            element={
-              <div className="p-8 text-center text-gray-600">
-                Page not found
-              </div>
-            }
+            element={<div className="p-8 text-center text-gray-600">Page not found</div>}
           />
         </Routes>
       </main>
 
-      {/* BottomNav */}
+      {/* Bottom Nav */}
       {isAuthenticated && !isPublic && !isAdmin && <BottomNav />}
     </div>
   );
@@ -166,4 +162,4 @@ export default function App() {
       <AppRoutes />
     </AuthProvider>
   );
-    }
+}
