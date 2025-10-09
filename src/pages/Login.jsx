@@ -15,28 +15,29 @@ export default function Login() {
 
     try {
       const res = await API.post("/auth/login", { email, password });
-      console.log("Login response:", res.data); // ✅ Debug
+      console.log("✅ Login response:", res.data);
 
-      // Save token + role + user
-      localStorage.setItem("pb_token", res.data.token);
-      localStorage.setItem("pb_role", res.data.user.role);
-      localStorage.setItem("pb_user", JSON.stringify(res.data.user));
+      const { token, user } = res.data;
+      if (!token || !user) throw new Error("Invalid response from server");
+
+      localStorage.setItem("pb_token", token);
+      localStorage.setItem("pb_role", user.role);
+      localStorage.setItem("pb_user", JSON.stringify(user));
 
       toast.success("Login successful ✅");
 
-      // Delay navigation so toast shows
       setTimeout(() => {
-        if (res.data.user.role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/dashboard");
-        }
+        navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard");
       }, 500);
     } catch (err) {
-      console.error("Login error:", err.response || err); // ✅ Full error log
-      const message =
-        err.response?.data?.error || err.response?.data?.message || "Login failed ❌";
-      toast.error(message);
+      console.error("❌ Login error:", err.response?.data || err.message);
+
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Login failed ❌";
+
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -95,4 +96,4 @@ export default function Login() {
       </div>
     </div>
   );
-                 }
+                           }
