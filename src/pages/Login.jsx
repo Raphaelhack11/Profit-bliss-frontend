@@ -2,45 +2,60 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
-import { useAuth } from "../authContext";
 
 export default function Login() {
-  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [debug, setDebug] = useState(""); // 👈 show backend response
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setDebug("");
 
     try {
       const res = await API.post("/auth/login", { email, password });
-      console.log("✅ Login response:", res.data);
 
-      const { token, user } = res.data;
-      login(token, user); // ✅ update context + localStorage
+      // 👇 Show backend data directly
+      setDebug(JSON.stringify(res.data, null, 2));
 
-      // ✅ Redirect based on role
-      setTimeout(() => {
-        if (user.role === "admin") navigate("/admin/dashboard");
-        else navigate("/dashboard");
-      }, 500);
+      // ✅ Handle success
+      if (res.data.token && res.data.user) {
+        localStorage.setItem("pb_token", res.data.token);
+        localStorage.setItem("pb_role", res.data.user.role);
+        localStorage.setItem("pb_user", JSON.stringify(res.data.user));
+
+        toast.success("Login successful ✅");
+
+        setTimeout(() => {
+          if (res.data.user.role === "admin") {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
+        }, 700);
+      } else {
+        toast.error("Unexpected response — no token or user found");
+      }
     } catch (err) {
-      console.error("❌ Login error:", err.response || err);
       const message =
         err.response?.data?.error ||
         err.response?.data?.message ||
         "Login failed ❌";
+
       toast.error(message);
+
+      // 👇 Show backend error details too
+      setDebug(JSON.stringify(err.response?.data || err.message, null, 2));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-white px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-indigo-50 to-white px-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-indigo-700 text-center mb-6">
           Welcome Back
@@ -89,7 +104,14 @@ export default function Login() {
             Sign up
           </Link>
         </p>
+
+        {debug && (
+          <div className="mt-8 bg-gray-100 text-gray-800 text-sm p-3 rounded-lg overflow-x-auto">
+            <strong>🔍 Backend Response:</strong>
+            <pre>{debug}</pre>
+          </div>
+        )}
       </div>
     </div>
   );
-                 }
+}
