@@ -19,17 +19,16 @@ import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// New verification page
+// Verification page
 import VerifyEmail from "./pages/VerifyEmail";
 
-// ✅ AuthProvider
+// ✅ Auth context (optional if you already added)
 import { AuthProvider, useAuth } from "./authContext";
 
 function AppRoutes() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const { user } = useAuth();
   const isAuthenticated = !!localStorage.getItem("pb_token");
   const role = localStorage.getItem("pb_role");
   const isAdmin = role === "admin";
@@ -40,25 +39,47 @@ function AppRoutes() {
 
   return (
     <div className="min-h-screen bg-white text-blue-800">
-      <main className={isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"}>
+      <main
+        className={
+          isPublic ? "pt-6 pb-10" : "pt-6 pb-24 container mx-auto px-4"
+        }
+      >
         <Routes>
           {/* Landing Page */}
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <LandingPage />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <LandingPage />
+              )
+            }
           />
 
           {/* Login & Signup */}
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Login />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <Login />
+              )
+            }
           />
           <Route
             path="/signup"
-            element={isAuthenticated ? <Navigate to={defaultHome} replace /> : <Signup />}
+            element={
+              isAuthenticated ? (
+                <Navigate to={defaultHome} replace />
+              ) : (
+                <Signup />
+              )
+            }
           />
 
-          {/* Verification */}
+          {/* Email Verification */}
           <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* User Protected Routes */}
@@ -74,25 +95,61 @@ function AppRoutes() {
           {/* Admin Protected Routes */}
           <Route
             path="/admin/dashboard"
-            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminDashboard />}
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminDashboard />
+              )
+            }
           />
           <Route
             path="/admin/deposits"
-            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminDeposits />}
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminDeposits />
+              )
+            }
           />
           <Route
             path="/admin/withdrawals"
-            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminWithdrawals />}
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminWithdrawals />
+              )
+            }
           />
           <Route
             path="/admin/plans"
-            element={!isAuthenticated ? <Navigate to="/login" replace /> : !isAdmin ? <Navigate to="/dashboard" replace /> : <AdminPlans />}
+            element={
+              !isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : !isAdmin ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <AdminPlans />
+              )
+            }
           />
 
           {/* Fallback */}
           <Route
             path="*"
-            element={<div className="p-8 text-center text-gray-600">Page not found</div>}
+            element={
+              <div className="p-8 text-center text-gray-600">
+                Page not found
+              </div>
+            }
           />
         </Routes>
       </main>
@@ -109,4 +166,4 @@ export default function App() {
       <AppRoutes />
     </AuthProvider>
   );
-}
+    }
