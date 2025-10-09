@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import API from "./api";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
@@ -8,32 +7,35 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Load user and token from localStorage
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    const storedUser = localStorage.getItem("pb_user");
 
-    // Verify token by calling wallet or /me
-    API.get("/wallet")
-      .then((res) => {
-        setUser({ email: res.data.email, name: res.data.name });
-      })
-      .catch(() => {
-        localStorage.removeItem("pb_token");
-      })
-      .finally(() => setLoading(false));
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("pb_user");
+      }
+    }
+    setLoading(false);
   }, []);
 
-  const login = (token) => {
+  // ✅ Login helper
+  const login = (token, userData) => {
     localStorage.setItem("pb_token", token);
-    setUser({ loggedIn: true });
-    toast.success("Logged in");
+    localStorage.setItem("pb_user", JSON.stringify(userData));
+    localStorage.setItem("pb_role", userData.role);
+    setUser(userData);
+    toast.success("Login successful ✅");
   };
 
+  // ✅ Logout helper
   const logout = () => {
     localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_user");
+    localStorage.removeItem("pb_role");
     setUser(null);
     toast.success("Logged out");
   };
