@@ -11,21 +11,26 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 flex justify-around py-2">
+    <nav className="fixed bottom-0 w-full bg-indigo-600 border-t border-indigo-700 flex justify-around py-2 shadow-lg">
       {links.map((link) => (
         <NavLink
           key={link.to}
           to={link.to}
           className={({ isActive }) =>
-            `flex flex-col items-center text-sm ${
-              isActive ? "text-blue-400" : "text-gray-400"
+            `flex flex-col items-center text-sm transition-all duration-200 ${
+              isActive
+                ? "text-white scale-110 drop-shadow-md"
+                : "text-indigo-200 scale-100"
             }`
           }
         >
-          {link.icon}
+          {React.cloneElement(link.icon, {
+            className: isActive ? "text-white" : "text-indigo-200",
+            size: isActive ? 24 : 20, // active icon slightly bigger
+          })}
           <span>{link.label}</span>
         </NavLink>
       ))}
     </nav>
   );
-}
+              }
