@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./authContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Pages
