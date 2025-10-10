@@ -6,16 +6,23 @@ import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
+// ✅ Landing page
+import LandingPage from "./pages/LandingPage";
+
 // ✅ User pages
 import Dashboard from "./pages/Dashboard";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import Settings from "./pages/Settings";
+import History from "./pages/History";
+import Plans from "./pages/Plans";
+import Wallet from "./pages/Wallet";
 
 // ✅ Admin pages
-import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
-import AdminDeposits from "./pages/admin/AdminDeposits.jsx";
-import AdminWithdrawals from "./pages/admin/AdminWithdrawals.jsx";
-import AdminPlans from "./pages/admin/AdminPlans.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDeposits from "./pages/admin/AdminDeposits";
+import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans";
 
 // ✅ Protected route
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -26,11 +33,12 @@ export default function App() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
-        {/* Public routes */}
+        {/* ✅ Public routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* User routes */}
+        {/* ✅ User routes */}
         <Route
           path="/dashboard"
           element={
@@ -55,8 +63,40 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/plans"
+          element={
+            <ProtectedRoute>
+              <Plans />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <ProtectedRoute>
+              <Wallet />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Admin routes */}
+        {/* ✅ Admin routes */}
         <Route
           path="/admin/dashboard"
           element={
@@ -90,9 +130,9 @@ export default function App() {
           }
         />
 
-        {/* Default route */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* ✅ Default fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
-        }
+}
