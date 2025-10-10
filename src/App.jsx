@@ -1,43 +1,71 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import { AuthProvider } from "./authContext";
-import ProtectedRoute from "./routes/ProtectedRoute";
-
-// Pages
+// ✅ Pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import VerifyEmail from "./pages/VerifyEmail";
+import AdminDashboard from "./pages/AdminDashboard"; // only if you have this file
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 
-function App() {
+// ✅ Components
+import ProtectedRoute from "./components/ProtectedRoute"; // fixed path
+
+export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Toaster position="top-right" reverseOrder={false} />
+    <Router>
+      {/* Global toast notifications */}
+      <Toaster position="top-center" reverseOrder={false} />
 
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
+      <Routes>
+        {/* Auth pages */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/deposit" element={<Deposit />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-          </Route>
+        {/* Protected user dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* Redirect any unknown route */}
-          <Route path="*" element={<Login />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+        {/* Optional admin dashboard */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Deposit & Withdraw */}
+        <Route
+          path="/deposit"
+          element={
+            <ProtectedRoute>
+              <Deposit />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/withdraw"
+          element={
+            <ProtectedRoute>
+              <Withdraw />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default route */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
-}
-
-export default App;
+        }
