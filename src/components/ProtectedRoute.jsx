@@ -1,18 +1,17 @@
 import React from "react";
-import { Outlet, Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute() {
-  const { user, loading } = useAuth();
+export default function ProtectedRoute({ children, adminOnly = false }) {
+  const token = localStorage.getItem("pb_token");
+  const role = localStorage.getItem("pb_role");
 
-  if (loading)
-    return (
-      <div className="p-8 text-center text-gray-600 font-medium">
-        Loading...
-      </div>
-    );
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && role !== "admin") {
+    return <Navigate to="/dashboard" replace />;
+  }
 
-  return <Outlet />;
+  return children;
 }
