@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Check token on load
+  // Check token and validate user
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
     if (!token) {
@@ -16,32 +16,38 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
+    (async () => {
+      try {
+        const res = await API.get("/wallet");
         setUser({
-          name: res.data.name || "User",
-          email: res.data.email || "user@email.com",
+          name: res.data?.name || "User",
+          email: res.data?.email || "user@email.com",
+          isAdmin: res.data?.isAdmin || false,
         });
-      })
-      .catch(() => {
+      } catch (err) {
+        console.error("Auth check failed:", err?.response || err);
         localStorage.removeItem("pb_token");
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  // ✅ Login and store token
   const login = (token) => {
     localStorage.setItem("pb_token", token);
     toast.success("Login successful");
     setUser({ loggedIn: true });
   };
 
-  // ✅ Logout and clear user
   const logout = () => {
     localStorage.removeItem("pb_token");
     setUser(null);
     toast.success("Logged out");
   };
+
+  if (loading) {
+    return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
