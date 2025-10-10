@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [debug, setDebug] = useState(""); // 👈 show backend response
+  const [debug, setDebug] = useState(""); // Optional for testing
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -17,27 +19,28 @@ export default function Login() {
 
     try {
       const res = await API.post("/auth/login", { email, password });
-
-      // 👇 Show backend data directly
       setDebug(JSON.stringify(res.data, null, 2));
 
-      // ✅ Handle success
       if (res.data.token && res.data.user) {
-        localStorage.setItem("pb_token", res.data.token);
+        // ✅ Use AuthContext login method
+        login(res.data.token);
+
+        // Store extra info locally
         localStorage.setItem("pb_role", res.data.user.role);
         localStorage.setItem("pb_user", JSON.stringify(res.data.user));
 
         toast.success("Login successful ✅");
 
+        // ✅ Navigate based on role
         setTimeout(() => {
           if (res.data.user.role === "admin") {
             navigate("/admin/dashboard");
           } else {
             navigate("/dashboard");
           }
-        }, 700);
+        }, 500);
       } else {
-        toast.error("Unexpected response — no token or user found");
+        toast.error("Unexpected response — missing token or user data");
       }
     } catch (err) {
       const message =
@@ -46,8 +49,6 @@ export default function Login() {
         "Login failed ❌";
 
       toast.error(message);
-
-      // 👇 Show backend error details too
       setDebug(JSON.stringify(err.response?.data || err.message, null, 2));
     } finally {
       setLoading(false);
@@ -114,4 +115,4 @@ export default function Login() {
       </div>
     </div>
   );
-}
+            }
