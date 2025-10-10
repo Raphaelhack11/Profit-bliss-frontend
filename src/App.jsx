@@ -12,10 +12,10 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 
 // ✅ Admin pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminDeposits from "./pages/admin/AdminDeposits";
-import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
-import AdminPlans from "./pages/admin/AdminPlans";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import AdminDeposits from "./pages/admin/AdminDeposits.jsx";
+import AdminWithdrawals from "./pages/admin/AdminWithdrawals.jsx";
+import AdminPlans from "./pages/admin/AdminPlans.jsx";
 
 // ✅ Protected route
 import ProtectedRoute from "./components/ProtectedRoute";
