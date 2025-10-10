@@ -1,17 +1,19 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../authContext";
 
-export default function ProtectedRoute({ children, adminOnly = false }) {
-  const token = localStorage.getItem("pb_token");
-  const role = localStorage.getItem("pb_role");
+const ProtectedRoute = ({ children, adminOnly }) => {
+  const { user, loading } = useAuth();
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  if (loading) return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
 
-  if (adminOnly && role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Not logged in → redirect to login
+  if (!user) return <Navigate to="/login" replace />;
+
+  // Admin-only route protection
+  if (adminOnly && !user.isAdmin) return <Navigate to="/dashboard" replace />;
 
   return children;
-}
+};
+
+export default ProtectedRoute;
