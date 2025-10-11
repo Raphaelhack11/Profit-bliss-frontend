@@ -16,7 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Plans from "./pages/Plans";
-import SettingsPage from "./pages/SettingsPage";
+import SettingsPage from "./pages/Settings";
 import History from "./pages/History";
 
 // ✅ Admin pages
