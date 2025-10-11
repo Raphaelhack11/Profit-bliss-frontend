@@ -8,7 +8,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check token and validate user
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
     if (!token) {
@@ -16,21 +15,17 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    (async () => {
-      try {
-        const res = await API.get("/wallet");
+    API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
         setUser({
-          name: res.data?.name || "User",
-          email: res.data?.email || "user@email.com",
-          isAdmin: res.data?.isAdmin || false,
+          name: res.data.name || "User",
+          email: res.data.email || "user@email.com",
         });
-      } catch (err) {
-        console.error("Auth check failed:", err?.response || err);
+      })
+      .catch(() => {
         localStorage.removeItem("pb_token");
-      } finally {
-        setLoading(false);
-      }
-    })();
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = (token) => {
@@ -44,10 +39,6 @@ export function AuthProvider({ children }) {
     setUser(null);
     toast.success("Logged out");
   };
-
-  if (loading) {
-    return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
-  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
