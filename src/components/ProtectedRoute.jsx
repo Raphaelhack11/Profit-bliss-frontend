@@ -2,22 +2,13 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../authContext";
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, adminOnly }) => {
   const { user, loading } = useAuth();
 
-  // While auth is initializing
-  if (loading)
-    return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
-
-  // If user not logged in → redirect
+  if (loading) return <div style={{ textAlign: "center", marginTop: 50 }}>Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && !user.isAdmin) return <Navigate to="/dashboard" replace />;
 
-  // If route is admin-only but user isn’t admin
-  if (adminOnly && !user.isAdmin) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // Otherwise, render page
   return children;
 };
 
