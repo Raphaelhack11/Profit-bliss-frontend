@@ -1,31 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import API from "./api";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("pb_token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setUser({
-          name: res.data.name || "User",
-          email: res.data.email || "user@email.com",
-        });
-      })
-      .catch(() => {
-        localStorage.removeItem("pb_token");
-      })
-      .finally(() => setLoading(false));
+    // just test: do nothing for now
   }, []);
 
   const login = (token) => {
