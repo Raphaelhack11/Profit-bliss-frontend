@@ -1,7 +1,15 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+function Home() {
+  return <h1>🏠 Landing Works</h1>;
+}
+
 export default function App() {
   return (
-    <div style={{ padding: "40px", fontSize: "24px", textAlign: "center" }}>
-      ✅ Frontend build is working!
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
