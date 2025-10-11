@@ -1,33 +1,40 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// Auth pages
+// ✅ Auth pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
-// User pages
+// ✅ Landing page
+import Landing from "./pages/Landing";
+
+// ✅ User pages
 import Dashboard from "./pages/Dashboard";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 
-// Admin pages
+// ✅ Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// Protected route
+// ✅ Protected route
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
-    <>
+    <Router>
       <Toaster position="top-center" reverseOrder={false} />
+
       <Routes>
+        {/* ✅ Public routes */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        {/* ✅ User routes */}
         <Route
           path="/dashboard"
           element={
@@ -53,6 +60,7 @@ export default function App() {
           }
         />
 
+        {/* ✅ Admin routes */}
         <Route
           path="/admin/dashboard"
           element={
@@ -86,8 +94,9 @@ export default function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* ✅ Default route now goes to landing page */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </Router>
   );
-      }
+}
