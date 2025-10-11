@@ -1,23 +1,27 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Routes, Route, Navigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
-// ✅ Auth
+// 🪩 Global error listener (helps find crashes)
+window.addEventListener("error", (e) => {
+  console.error("Global Error:", e.message, e.filename, e.lineno);
+});
+window.addEventListener("unhandledrejection", (e) => {
+  console.error("Unhandled Promise:", e.reason);
+});
+
+// ✅ Auth pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import VerifyEmail from "./pages/VerifyEmail";
-import VerifyNotice from "./pages/VerifyNotice";
-
-// ✅ Landing
-import LandingPage from "./pages/LandingPage";
 
 // ✅ User pages
+import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
-import Plans from "./pages/Plans";
-import SettingsPage from "./pages/Settings";
-import History from "./pages/History";
+import SettingsPage from "./pages/SettingsPage";
+import VerifyEmail from "./pages/VerifyEmail";
+import VerifyNotice from "./pages/VerifyNotice";
 
 // ✅ Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -31,26 +35,24 @@ import BottomNav from "./components/BottomNav";
 
 export default function App() {
   return (
-    <Router>
-      <Toaster position="top-center" reverseOrder={false} />
-
+    <>
+      {/* 🏠 Public routes */}
       <Routes>
-        {/* 🟢 Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* ✉️ Verification */}
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/verify-notice" element={<VerifyNotice />} />
 
-        {/* 🟣 User Routes */}
+        {/* 👤 User routes */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <>
-                <Dashboard />
-                <BottomNav />
-              </>
+              <Dashboard />
+              <BottomNav />
             </ProtectedRoute>
           }
         />
@@ -58,10 +60,8 @@ export default function App() {
           path="/deposit"
           element={
             <ProtectedRoute>
-              <>
-                <Deposit />
-                <BottomNav />
-              </>
+              <Deposit />
+              <BottomNav />
             </ProtectedRoute>
           }
         />
@@ -69,21 +69,8 @@ export default function App() {
           path="/withdraw"
           element={
             <ProtectedRoute>
-              <>
-                <Withdraw />
-                <BottomNav />
-              </>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans"
-          element={
-            <ProtectedRoute>
-              <>
-                <Plans />
-                <BottomNav />
-              </>
+              <Withdraw />
+              <BottomNav />
             </ProtectedRoute>
           }
         />
@@ -91,26 +78,13 @@ export default function App() {
           path="/settings"
           element={
             <ProtectedRoute>
-              <>
-                <SettingsPage />
-                <BottomNav />
-              </>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <>
-                <History />
-                <BottomNav />
-              </>
+              <SettingsPage />
+              <BottomNav />
             </ProtectedRoute>
           }
         />
 
-        {/* 🔴 Admin Routes */}
+        {/* 🧑‍💼 Admin routes */}
         <Route
           path="/admin/dashboard"
           element={
@@ -144,9 +118,9 @@ export default function App() {
           }
         />
 
-        {/* ⚪ Default route */}
+        {/* 🚦 Default fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+    </>
   );
-}
+      }
