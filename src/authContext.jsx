@@ -8,9 +8,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Load user data on mount
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
-    if (!token) return setLoading(false);
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
     API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
@@ -20,16 +24,31 @@ export function AuthProvider({ children }) {
           isAdmin: res.data.isAdmin || false,
         });
       })
-      .catch(() => localStorage.removeItem("pb_token"))
+      .catch(() => {
+        localStorage.removeItem("pb_token");
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  const login = (token) => {
+  // Login: store token and fetch user info again
+  const login = async (token) => {
     localStorage.setItem("pb_token", token);
     toast.success("Login successful");
-    setUser({ loggedIn: true });
+
+    try {
+      const res = await API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } });
+      setUser({
+        name: res.data.name || "User",
+        email: res.data.email || "user@email.com",
+        isAdmin: res.data.isAdmin || false,
+      });
+    } catch {
+      setUser({ name: "User", email: "user@email.com", isAdmin: false });
+    }
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem("pb_token");
     setUser(null);
