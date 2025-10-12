@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./authContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// 🌐 User pages
+// user pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -16,16 +16,16 @@ import SettingsPage from "./pages/SettingsPage";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
 
-// 🧭 Bottom Navbar for users
+// navbar / bottom nav for users
 import Navbar from "./components/Navbar";
 
-// 👑 Admin pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminDeposits from "./pages/admin/Deposits";
-import AdminWithdrawals from "./pages/admin/Withdrawals";
-import AdminPlans from "./pages/admin/Plans";
+// admin pages (corrected file paths)
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDeposits from "./pages/admin/AdminDeposits";
+import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans";
 
-// ✅ Layout that hides Navbar on admin routes
+// layout helper to hide Navbar on admin routes
 function LayoutWithNav({ children }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -43,14 +43,14 @@ function App() {
       <Router>
         <LayoutWithNav>
           <Routes>
-            {/* 🌍 Public Routes */}
+            {/* public */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route path="/verify-notice" element={<VerifyNotice />} />
 
-            {/* 🔐 Protected User Routes */}
+            {/* protected user pages */}
             <Route
               path="/dashboard"
               element={
@@ -92,7 +92,7 @@ function App() {
               }
             />
 
-            {/* 👑 Admin Routes */}
+            {/* admin */}
             <Route
               path="/admin"
               element={
