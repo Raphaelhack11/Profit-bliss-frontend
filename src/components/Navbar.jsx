@@ -1,30 +1,29 @@
-// src/components/Navbar.jsx
-import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, DollarSign, Wallet, User } from "lucide-react";
+import { Home, Layers, DollarSign, Wallet, Settings } from "lucide-react";
 
 export default function Navbar() {
-  const links = [
-    { to: "/dashboard", icon: <Home size={22} />, label: "Home" },
-    { to: "/deposit", icon: <DollarSign size={22} />, label: "Deposit" },
-    { to: "/wallet", icon: <Wallet size={22} />, label: "Wallet" },
-    { to: "/settings", icon: <User size={22} />, label: "Profile" },
+  const navItems = [
+    { to: "/dashboard", label: "Home", icon: <Home size={22} /> },
+    { to: "/plans", label: "Plans", icon: <Layers size={22} /> },
+    { to: "/deposit", label: "Deposit", icon: <DollarSign size={22} /> },
+    { to: "/wallet", label: "Wallet", icon: <Wallet size={22} /> },
+    { to: "/settings", label: "Settings", icon: <Settings size={22} /> },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-md flex justify-around py-2 z-50">
-      {links.map((link) => (
+    <nav className="fixed bottom-0 left-0 w-full bg-indigo-600 flex justify-around py-2 shadow-lg z-50">
+      {navItems.map((item) => (
         <NavLink
-          key={link.to}
-          to={link.to}
+          key={item.to}
+          to={item.to}
           className={({ isActive }) =>
-            `flex flex-col items-center text-sm font-medium transition-colors ${
-              isActive ? "text-indigo-600" : "text-gray-500"
+            `flex flex-col items-center text-sm transition ${
+              isActive ? "text-white" : "text-indigo-200"
             }`
           }
         >
-          {link.icon}
-          <span>{link.label}</span>
+          {item.icon}
+          <span className="text-xs">{item.label}</span>
         </NavLink>
       ))}
     </nav>
