@@ -25,7 +25,7 @@ import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminPlans from "./pages/admin/AdminPlans";
 
-// Hide Navbar on admin pages
+// ✅ Layout wrapper to hide Navbar on admin routes
 function LayoutWithNav({ children }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -43,14 +43,14 @@ export default function App() {
       <Router>
         <LayoutWithNav>
           <Routes>
-            {/* Public Routes */}
+            {/* 🌍 Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route path="/verify-notice" element={<VerifyNotice />} />
 
-            {/* Protected User Routes */}
+            {/* 🔒 Protected User Routes */}
             <Route
               path="/dashboard"
               element={
@@ -92,7 +92,7 @@ export default function App() {
               }
             />
 
-            {/* Admin Protected Routes */}
+            {/* 👑 Admin Protected Routes */}
             <Route
               path="/admin"
               element={
@@ -131,4 +131,4 @@ export default function App() {
       </Router>
     </AuthProvider>
   );
-}
+            }
