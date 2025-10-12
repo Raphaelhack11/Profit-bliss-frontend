@@ -1,19 +1,33 @@
+// src/components/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../authContext";
 
-const ProtectedRoute = ({ children, adminOnly }) => {
+/**
+ * Usage:
+ * <ProtectedRoute> <Dashboard /> </ProtectedRoute>
+ * or
+ * <ProtectedRoute adminOnly> <AdminPage/> </ProtectedRoute>
+ */
+export default function ProtectedRoute({ children, adminOnly = false }) {
   const { user, loading } = useAuth();
 
-  if (loading) return <div style={{ textAlign: "center", marginTop: 50 }}>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
-  // Not logged in → redirect to login
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  // Admin-only route protection
-  if (adminOnly && !user.isAdmin) return <Navigate to="/dashboard" replace />;
+  if (adminOnly && !user.isAdmin) {
+    // if user exists but not admin, send to user dashboard
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return children;
-};
-
-export default ProtectedRoute;
+}
