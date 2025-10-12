@@ -20,10 +20,10 @@ import VerifyNotice from "./pages/VerifyNotice";
 import Navbar from "./components/Navbar";
 
 // 👑 Admin pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminDeposits from "./pages/admin/Deposits";
-import AdminWithdrawals from "./pages/admin/Withdrawals";
-import AdminUsers from "./pages/admin/Users";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDeposits from "./pages/admin/AdminDeposits";
+import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans";
 
 // Hide Navbar on admin pages
 function LayoutWithNav({ children }) {
@@ -118,10 +118,10 @@ export default function App() {
               }
             />
             <Route
-              path="/admin/users"
+              path="/admin/plans"
               element={
                 <ProtectedRoute adminOnly>
-                  <AdminUsers />
+                  <AdminPlans />
                 </ProtectedRoute>
               }
             />
@@ -131,4 +131,4 @@ export default function App() {
       </Router>
     </AuthProvider>
   );
-            }
+}
