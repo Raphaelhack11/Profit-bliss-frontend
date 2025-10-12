@@ -1,11 +1,10 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./authContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// user pages
+// 🌐 User pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -17,16 +16,16 @@ import SettingsPage from "./pages/SettingsPage";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
 
-// navbar / bottom nav for users
+// 🧭 Bottom Navbar for users
 import Navbar from "./components/Navbar";
 
-// admin pages (ensure these paths match your repo — adjust filenames if needed)
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminDeposits from "./pages/admin/AdminDeposits";
-import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
-import AdminPlans from "./pages/admin/AdminPlans";
+// 👑 Admin pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminDeposits from "./pages/admin/Deposits";
+import AdminWithdrawals from "./pages/admin/Withdrawals";
+import AdminPlans from "./pages/admin/Plans";
 
-// layout helper to hide Navbar on admin routes
+// ✅ Layout that hides Navbar on admin routes
 function LayoutWithNav({ children }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -38,20 +37,20 @@ function LayoutWithNav({ children }) {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <AuthProvider>
       <Router>
         <LayoutWithNav>
           <Routes>
-            {/* public */}
+            {/* 🌍 Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route path="/verify-notice" element={<VerifyNotice />} />
 
-            {/* protected user pages */}
+            {/* 🔐 Protected User Routes */}
             <Route
               path="/dashboard"
               element={
@@ -93,7 +92,7 @@ export default function App() {
               }
             />
 
-            {/* admin */}
+            {/* 👑 Admin Routes */}
             <Route
               path="/admin"
               element={
@@ -128,9 +127,10 @@ export default function App() {
             />
           </Routes>
         </LayoutWithNav>
-
         <Toaster position="top-center" />
       </Router>
     </AuthProvider>
   );
 }
+
+export default App;
