@@ -19,7 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
-import Settings from "./pages/Settings";
+import SettingsPage from "./pages/SettingsPage";
 import History from "./pages/History";
 
 // 🔹 Admin pages
