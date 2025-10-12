@@ -6,7 +6,11 @@ const ProtectedRoute = ({ children, adminOnly }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div style={{ textAlign: "center", marginTop: 50 }}>Loading...</div>;
+
+  // Not logged in → redirect to login
   if (!user) return <Navigate to="/login" replace />;
+
+  // Admin-only route protection
   if (adminOnly && !user.isAdmin) return <Navigate to="/dashboard" replace />;
 
   return children;
