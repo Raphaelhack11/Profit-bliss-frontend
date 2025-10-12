@@ -12,7 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Plans from "./pages/Plans";
-import Settings from "./pages/Settings";
+import SettingsPage from "./pages/SettingsPage"; // ✅ corrected import
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
 
@@ -87,7 +87,7 @@ export default function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <Settings />
+                  <SettingsPage /> {/* ✅ corrected usage */}
                 </ProtectedRoute>
               }
             />
