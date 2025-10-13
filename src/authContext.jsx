@@ -1,83 +1,69 @@
-// src/authContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import API from "./api";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
-/**
- * AuthProvider
- * - verifies token by calling a safe backend endpoint (/wallet)
- * - protects against crashes by using try/catch and always resolving loading
- */
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // { name, email, role, isAdmin }
+  const [user, setUser] = useState(null); // { id, email, name, role, isAdmin }
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function init() {
+    // check auth token and fetch lightweight user info (wallet route used previously)
+    async function bootstrap() {
+      const token = localStorage.getItem("pb_token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("pb_token");
-        if (!token) {
-          setUser(null);
-          return;
-        }
+        // call a cheap authenticated endpoint to validate token & get user info
+        const res = await API.get("/wallet"); // your backend returns wallet + maybe user info
+        // backend may not return user fields: attempt to grab what exists
+        const payloadUser = res.data.user || {
+          name: res.data.name || null,
+          email: res.data.email || null,
+        };
 
-        // call a light endpoint to validate token and get user info
-        // NOTE: API has an interceptor that adds Authorization header
-        const res = await API.get("/wallet").catch((err) => {
-          // Prefer /auth/me if you add it; wallet is fine for validating token
-          throw err;
-        });
+        // If backend doesn't return user, try to read pb_user fallback
+        const localUser = JSON.parse(localStorage.getItem("pb_user") || "null");
 
-        // backend /wallet should return wallet + (optionally) user data
-        // We'll attempt to extract user info safely
-        const payloadUser = res.data.user || res.data || {};
         setUser({
-          name: payloadUser.name || payloadUser.email || "User",
-          email: payloadUser.email || null,
-          role: payloadUser.role || localStorage.getItem("pb_role") || "user",
-          isAdmin:
-            (payloadUser.role || localStorage.getItem("pb_role") || "") ===
-            "admin",
+          id: payloadUser.id || localUser?.id || null,
+          name: payloadUser.name || localUser?.name || null,
+          email: payloadUser.email || localUser?.email || null,
+          role: localUser?.role || "user",
+          isAdmin: (localUser?.role || "user") === "admin",
         });
       } catch (err) {
-        // Not fatal: clear token and remain logged out
-        console.warn("Auth initialization failed:", err?.message || err);
+        console.warn("Auth bootstrap failed, clearing token.", err?.message || err);
         localStorage.removeItem("pb_token");
-        localStorage.removeItem("pb_role");
+        localStorage.removeItem("pb_user");
         setUser(null);
       } finally {
         setLoading(false);
       }
     }
 
-    init();
+    bootstrap();
   }, []);
 
-  // login: save token + optionally set user. Prefer backend to return user.
-  const login = (token, role = null, userData = null) => {
-    try {
-      localStorage.setItem("pb_token", token);
-      if (role) localStorage.setItem("pb_role", role);
-      if (userData) localStorage.setItem("pb_user", JSON.stringify(userData));
-
-      setUser((prev) => ({
-        ...(prev || {}),
-        ...(userData || {}),
-        role: role || prev?.role || "user",
-        isAdmin: (role || prev?.role || "user") === "admin",
-      }));
-
-      toast.success("Login successful");
-    } catch (err) {
-      console.error("login error", err);
-    }
+  const login = ({ token, user: backendUser }) => {
+    if (token) localStorage.setItem("pb_token", token);
+    if (backendUser) localStorage.setItem("pb_user", JSON.stringify(backendUser));
+    setUser({
+      id: backendUser?.id || null,
+      name: backendUser?.name || null,
+      email: backendUser?.email || null,
+      role: backendUser?.role || "user",
+      isAdmin: backendUser?.role === "admin",
+    });
+    toast.success("Logged in");
   };
 
   const logout = () => {
     localStorage.removeItem("pb_token");
-    localStorage.removeItem("pb_role");
     localStorage.removeItem("pb_user");
     setUser(null);
     toast.success("Logged out");
@@ -91,3 +77,4 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+export default AuthContext;
