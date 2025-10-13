@@ -1,4 +1,4 @@
-// src/api.js
+// central axios instance
 import axios from "axios";
 
 const API = axios.create({
@@ -6,6 +6,7 @@ const API = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// attach token automatically
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("pb_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
