@@ -6,8 +6,10 @@ import "./index.css";
 import { AuthProvider } from "./authContext";
 import { Toaster } from "react-hot-toast";
 
-// ✅ Standard React entrypoint (no Sentry, no errors)
-createRoot(document.getElementById("root")).render(
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
