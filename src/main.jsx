@@ -1,23 +1,19 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/react";
+import "./index.css";
+import { AuthProvider } from "./authContext";
+import { Toaster } from "react-hot-toast";
 
-// Initialize Sentry
-Sentry.init({
-  dsn: "https://db5a60c7e4e79b18641491f6e2094cce@o4510181188239360.ingest.us.sentry.io/4510181193089024",
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 1.0,
-  sendDefaultPii: true,
-});
-
-// Render app
-const container = document.getElementById("root"); // make sure it matches your index.html
-const root = ReactDOM.createRoot(container);
-
-root.render(
-  <Sentry.ErrorBoundary fallback={<p>⚠️ Something went wrong</p>}>
-    <App />
-  </Sentry.ErrorBoundary>
+// ✅ Standard React entrypoint (no Sentry, no errors)
+createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+        <Toaster position="top-right" reverseOrder={false} />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );
