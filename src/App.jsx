@@ -1,11 +1,10 @@
-// src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, BrowserRouter as Router } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./authContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// User pages
+// pages (ensure these paths exist and filenames match)
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -17,10 +16,10 @@ import SettingsPage from "./pages/SettingsPage";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
 
-// Navbar
+// navbar
 import Navbar from "./components/Navbar";
 
-// Admin pages
+// admin pages (adjust import paths if your files have different names)
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
@@ -31,44 +30,104 @@ function LayoutWithNav({ children }) {
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
     <>
-      {children}
+      <div style={{ minHeight: "100vh" }}>{children}</div>
       {!isAdminRoute && <Navbar />}
     </>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <Router>
         <LayoutWithNav>
           <Routes>
-            {/* Public Routes */}
+            {/* public */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/verify-notice" element={<VerifyNotice />} />
 
-            {/* Protected User Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/deposit" element={<ProtectedRoute><Deposit /></ProtectedRoute>} />
-            <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
-            <Route path="/plans" element={<ProtectedRoute><Plans /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            {/* protected user */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/deposit"
+              element={
+                <ProtectedRoute>
+                  <Deposit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/withdraw"
+              element={
+                <ProtectedRoute>
+                  <Withdraw />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/plans"
+              element={
+                <ProtectedRoute>
+                  <Plans />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/deposits" element={<ProtectedRoute adminOnly><AdminDeposits /></ProtectedRoute>} />
-            <Route path="/admin/withdrawals" element={<ProtectedRoute adminOnly><AdminWithdrawals /></ProtectedRoute>} />
-            <Route path="/admin/plans" element={<ProtectedRoute adminOnly><AdminPlans /></ProtectedRoute>} />
+            {/* admin */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/deposits"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminDeposits />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/withdrawals"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminWithdrawals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/plans"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminPlans />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </LayoutWithNav>
-
         <Toaster position="top-center" />
       </Router>
     </AuthProvider>
   );
-}
-
-export default App;
+            }
