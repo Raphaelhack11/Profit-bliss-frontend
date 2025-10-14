@@ -1,10 +1,10 @@
 import React from "react";
-import { Routes, Route, useLocation, BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./authContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// pages (ensure these paths exist and filenames match)
+// user pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -16,10 +16,10 @@ import SettingsPage from "./pages/SettingsPage";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
 
-// navbar
+// navbar / bottom nav for users
 import Navbar from "./components/Navbar";
 
-// admin pages (adjust import paths if your files have different names)
+// admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
@@ -30,7 +30,7 @@ function LayoutWithNav({ children }) {
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
     <>
-      <div style={{ minHeight: "100vh" }}>{children}</div>
+      {children}
       {!isAdminRoute && <Navbar />}
     </>
   );
@@ -42,14 +42,14 @@ export default function App() {
       <Router>
         <LayoutWithNav>
           <Routes>
-            {/* public */}
+            {/* public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/verify-notice" element={<VerifyNotice />} />
 
-            {/* protected user */}
+            {/* protected user routes */}
             <Route
               path="/dashboard"
               element={
@@ -91,7 +91,7 @@ export default function App() {
               }
             />
 
-            {/* admin */}
+            {/* admin routes */}
             <Route
               path="/admin"
               element={
@@ -130,4 +130,4 @@ export default function App() {
       </Router>
     </AuthProvider>
   );
-            }
+}
