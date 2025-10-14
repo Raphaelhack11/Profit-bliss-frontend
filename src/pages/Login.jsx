@@ -8,9 +8,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [debug, setDebug] = useState(""); // Optional for testing
+  const [debug, setDebug] = useState(""); // optional debug output
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { loginAction } = useAuth(); // ✅ FIXED (was login)
 
   const submit = async (e) => {
     e.preventDefault();
@@ -22,16 +22,16 @@ export default function Login() {
       setDebug(JSON.stringify(res.data, null, 2));
 
       if (res.data.token && res.data.user) {
-        // ✅ Use AuthContext login method
-        login(res.data.token);
+        // ✅ Correct function name + pass user object
+        loginAction(res.data.token, res.data.user);
 
-        // Store extra info locally
+        // Store locally for redundancy
         localStorage.setItem("pb_role", res.data.user.role);
         localStorage.setItem("pb_user", JSON.stringify(res.data.user));
 
         toast.success("Login successful ✅");
 
-        // ✅ Navigate based on role
+        // Redirect user based on role
         setTimeout(() => {
           if (res.data.user.role === "admin") {
             navigate("/admin/dashboard");
@@ -115,4 +115,4 @@ export default function Login() {
       </div>
     </div>
   );
-            }
+    }
