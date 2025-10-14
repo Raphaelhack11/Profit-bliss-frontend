@@ -5,76 +5,58 @@ import toast from "react-hot-toast";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // { id, email, name, role, isAdmin }
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // on load, verify token by calling /wallet (or /me if available)
   useEffect(() => {
-    // check auth token and fetch lightweight user info (wallet route used previously)
-    async function bootstrap() {
-      const token = localStorage.getItem("pb_token");
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // call a cheap authenticated endpoint to validate token & get user info
-        const res = await API.get("/wallet"); // your backend returns wallet + maybe user info
-        // backend may not return user fields: attempt to grab what exists
-        const payloadUser = res.data.user || {
-          name: res.data.name || null,
-          email: res.data.email || null,
-        };
-
-        // If backend doesn't return user, try to read pb_user fallback
-        const localUser = JSON.parse(localStorage.getItem("pb_user") || "null");
-
-        setUser({
-          id: payloadUser.id || localUser?.id || null,
-          name: payloadUser.name || localUser?.name || null,
-          email: payloadUser.email || localUser?.email || null,
-          role: localUser?.role || "user",
-          isAdmin: (localUser?.role || "user") === "admin",
-        });
-      } catch (err) {
-        console.warn("Auth bootstrap failed, clearing token.", err?.message || err);
-        localStorage.removeItem("pb_token");
-        localStorage.removeItem("pb_user");
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    const token = localStorage.getItem("pb_token");
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    bootstrap();
+    API.get("/wallet")
+      .then((res) => {
+        // adapt to returned wallet/user payload from backend
+        // If your wallet endpoint returns wallet only, you may want to call /auth/me instead.
+        const data = res.data;
+        setUser({
+          name: data.name || JSON.parse(localStorage.getItem("pb_user"))?.name,
+          email: data.email || JSON.parse(localStorage.getItem("pb_user"))?.email,
+          role: localStorage.getItem("pb_role") || "user",
+          isAdmin: localStorage.getItem("pb_role") === "admin"
+        });
+      })
+      .catch(() => {
+        localStorage.removeItem("pb_token");
+        localStorage.removeItem("pb_role");
+        localStorage.removeItem("pb_user");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = ({ token, user: backendUser }) => {
-    if (token) localStorage.setItem("pb_token", token);
-    if (backendUser) localStorage.setItem("pb_user", JSON.stringify(backendUser));
-    setUser({
-      id: backendUser?.id || null,
-      name: backendUser?.name || null,
-      email: backendUser?.email || null,
-      role: backendUser?.role || "user",
-      isAdmin: backendUser?.role === "admin",
-    });
-    toast.success("Logged in");
+  const loginAction = (token, userObj) => {
+    localStorage.setItem("pb_token", token);
+    if (userObj?.role) localStorage.setItem("pb_role", userObj.role);
+    if (userObj) localStorage.setItem("pb_user", JSON.stringify(userObj));
+    setUser({ ...userObj, isAdmin: userObj?.role === "admin" });
+    toast.success("Login successful");
   };
 
   const logout = () => {
     localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_role");
     localStorage.removeItem("pb_user");
     setUser(null);
     toast.success("Logged out");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, loading, loginAction, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => useContext(AuthContext);
-export default AuthContext;
