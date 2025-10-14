@@ -1,4 +1,4 @@
-6⁴// central axios instance
+// central axios instance
 import axios from "axios";
 
 const API = axios.create({
