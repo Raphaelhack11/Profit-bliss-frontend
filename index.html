@@ -4,23 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Profit Bliss</title>
-
-    <!-- ✅ Optional: Small inline error catcher -->
-    <script>
-      window.addEventListener("error", function (e) {
-        document.body.innerHTML =
-          "<pre style='color:red;white-space:pre-wrap;padding:20px;font-size:16px;'>" +
-          "❌ JavaScript Error: " + e.message +
-          "\n\n" + (e.filename || "") +
-          ":" + (e.lineno || "") +
-          "</pre>";
-      });
-    </script>
   </head>
-
   <body class="antialiased bg-white">
     <div id="root"></div>
-    <!-- ✅ Ensure this points to your correct entry file -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
