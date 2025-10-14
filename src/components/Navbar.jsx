@@ -1,5 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { Home, Layers, BarChart2, Wallet as WalletIcon, Settings } from "lucide-react";
+import {
+  Home,
+  Layers,
+  BarChart2,
+  Wallet as WalletIcon,
+  Settings,
+} from "lucide-react";
 
 const navItems = [
   { to: "/dashboard", label: "Home", icon: <Home size={20} /> },
@@ -28,4 +34,4 @@ export default function Navbar() {
       ))}
     </nav>
   );
-            }
+}
