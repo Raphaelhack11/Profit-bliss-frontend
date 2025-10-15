@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Safe token restore & validation
+  // ✅ Load user from localStorage + verify token
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
     if (!token) {
@@ -22,22 +22,21 @@ export function AuthProvider({ children }) {
         const res = await API.get("/wallet"); // or "/auth/me" if available
 
         const storedUser = JSON.parse(localStorage.getItem("pb_user")) || {};
+        const storedRole = localStorage.getItem("pb_role") || "user";
+
         const userData = {
           ...storedUser,
           name: res.data.name || storedUser.name,
           email: res.data.email || storedUser.email,
-          role: localStorage.getItem("pb_role") || "user",
-          isAdmin: localStorage.getItem("pb_role") === "admin",
+          role: storedRole,
+          isAdmin: storedRole === "admin",
         };
 
         setUser(userData);
       } catch (err) {
         console.error("Auth check failed:", err);
         toast.error("Session expired — please log in again.");
-        // ✅ Clear bad tokens to avoid white screen
-        localStorage.removeItem("pb_token");
-        localStorage.removeItem("pb_role");
-        localStorage.removeItem("pb_user");
+        logout(); // ✅ clears everything safely
       } finally {
         setLoading(false);
       }
@@ -46,6 +45,7 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
+  // ✅ Login action (called from Login page)
   const loginAction = (token, userObj) => {
     try {
       localStorage.setItem("pb_token", token);
@@ -60,12 +60,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // ✅ Safe logout clears all and refreshes to login page
   const logout = () => {
     localStorage.removeItem("pb_token");
     localStorage.removeItem("pb_role");
     localStorage.removeItem("pb_user");
+    delete API.defaults.headers.common["Authorization"];
     setUser(null);
     toast.success("Logged out 👋");
+
+    // Optional: auto-redirect after logout
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 500);
   };
 
   return (
