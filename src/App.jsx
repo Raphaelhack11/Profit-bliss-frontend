@@ -1,18 +1,29 @@
 import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+
+// Context
+import { AuthProvider } from "./authContext";
 
 // Components
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoutes from "./components/AdminRoutes";
+import AdminRoute from "./components/AdminRoute";
 
-// Pages
+// Public pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyNotice from "./pages/VerifyNotice";
+
+// User pages
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import Deposit from "./pages/Deposit";
@@ -29,17 +40,17 @@ import AdminPlans from "./pages/admin/AdminPlans";
 function Layout({ children }) {
   const location = useLocation();
 
-  // Pages where navbar should not appear
-  const hideNavbarPaths = [
+  // Paths where the Navbar should not be visible
+  const hideNavbarOn = [
     "/",
     "/login",
     "/signup",
-    "/verify-email",
     "/verify-notice",
+    "/verify-email",
   ];
 
   const hideNavbar =
-    hideNavbarPaths.includes(location.pathname) ||
+    hideNavbarOn.includes(location.pathname) ||
     location.pathname.startsWith("/admin");
 
   return (
@@ -52,88 +63,108 @@ function Layout({ children }) {
 
 export default function App() {
   return (
-    <>
-      <Layout>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/verify-notice" element={<VerifyNotice />} />
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-notice" element={<VerifyNotice />} />
 
-          {/* Protected User Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/plans"
-            element={
-              <ProtectedRoute>
-                <Plans />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/deposit"
-            element={
-              <ProtectedRoute>
-                <Deposit />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/withdraw"
-            element={
-              <ProtectedRoute>
-                <Withdraw />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <ProtectedRoute>
-                <History />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected User Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/plans"
+              element={
+                <ProtectedRoute>
+                  <Plans />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/deposit"
+              element={
+                <ProtectedRoute>
+                  <Deposit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/withdraw"
+              element={
+                <ProtectedRoute>
+                  <Withdraw />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <History />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ✅ Admin Protected Routes */}
-          <Route
-            path="/admin/*"
-            element={
-              <AdminRoutes>
-                <Routes>
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="deposits" element={<AdminDeposits />} />
-                  <Route path="withdrawals" element={<AdminWithdrawals />} />
-                  <Route path="plans" element={<AdminPlans />} />
-                  <Route path="*" element={<Navigate to="dashboard" replace />} />
-                </Routes>
-              </AdminRoutes>
-            }
-          />
+            {/* Admin Routes (Protected) */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/deposits"
+              element={
+                <AdminRoute>
+                  <AdminDeposits />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/withdrawals"
+              element={
+                <AdminRoute>
+                  <AdminWithdrawals />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/plans"
+              element={
+                <AdminRoute>
+                  <AdminPlans />
+                </AdminRoute>
+              }
+            />
 
-          {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
 
-      <Toaster position="top-center" />
-    </>
+        <Toaster position="top-center" />
+      </Router>
+    </AuthProvider>
   );
-    }
+  }
