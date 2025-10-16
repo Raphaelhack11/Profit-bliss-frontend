@@ -3,21 +3,19 @@ import { Navigate } from "react-router-dom";
 
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("pb_role");
 
+  // No token = not logged in
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1])); // decode JWT
-    if (payload.role !== "admin") {
-      return <Navigate to="/" replace />;
-    }
-  } catch (err) {
-    console.error("Invalid token", err);
-    return <Navigate to="/login" replace />;
+  // Not an admin = redirect to dashboard (or landing)
+  if (role !== "admin") {
+    return <Navigate to="/dashboard" replace />;
   }
 
+  // ✅ Authenticated admin — allow access
   return children;
 };
 
