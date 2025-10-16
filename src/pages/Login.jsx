@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import API from "../api";
 import toast from "react-hot-toast";
 import { useAuth } from "../authContext";
@@ -8,37 +8,18 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [debug, setDebug] = useState(""); // optional debug output
-  const navigate = useNavigate();
-  const { loginAction } = useAuth(); // ✅ FIXED (was login)
+  const { loginAction } = useAuth();
 
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setDebug("");
 
     try {
       const res = await API.post("/auth/login", { email, password });
-      setDebug(JSON.stringify(res.data, null, 2));
 
       if (res.data.token && res.data.user) {
-        // ✅ Correct function name + pass user object
+        // ✅ Call shared auth context handler
         loginAction(res.data.token, res.data.user);
-
-        // Store locally for redundancy
-        localStorage.setItem("pb_role", res.data.user.role);
-        localStorage.setItem("pb_user", JSON.stringify(res.data.user));
-
-        toast.success("Login successful ✅");
-
-        // Redirect user based on role
-        setTimeout(() => {
-          if (res.data.user.role === "admin") {
-            navigate("/admin/dashboard");
-          } else {
-            navigate("/dashboard");
-          }
-        }, 500);
       } else {
         toast.error("Unexpected response — missing token or user data");
       }
@@ -49,7 +30,6 @@ export default function Login() {
         "Login failed ❌";
 
       toast.error(message);
-      setDebug(JSON.stringify(err.response?.data || err.message, null, 2));
     } finally {
       setLoading(false);
     }
@@ -74,6 +54,7 @@ export default function Login() {
             required
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -105,14 +86,7 @@ export default function Login() {
             Sign up
           </Link>
         </p>
-
-        {debug && (
-          <div className="mt-8 bg-gray-100 text-gray-800 text-sm p-3 rounded-lg overflow-x-auto">
-            <strong>🔍 Backend Response:</strong>
-            <pre>{debug}</pre>
-          </div>
-        )}
       </div>
     </div>
   );
-    }
+          }
