@@ -8,43 +8,79 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Restore session from localStorage
+  // ✅ Restore user session on mount
   useEffect(() => {
     const token = localStorage.getItem("pb_token");
-    const storedUser = localStorage.getItem("pb_user");
-    if (!token || !storedUser) {
+    if (!token) {
       setLoading(false);
       return;
     }
 
-    API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-    } catch {
-      localStorage.removeItem("pb_token");
-      localStorage.removeItem("pb_user");
-    } finally {
-      setLoading(false);
-    }
+    const fetchUser = async () => {
+      try {
+        API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        // You can replace `/wallet` with `/auth/me` if your backend supports it
+        const res = await API.get("/wallet");
+
+        const storedUser = JSON.parse(localStorage.getItem("pb_user")) || {};
+        const role = localStorage.getItem("pb_role") || storedUser.role || "user";
+        const isAdmin = role === "admin";
+
+        const userData = {
+          ...storedUser,
+          name: res.data.name || storedUser.name,
+          email: res.data.email || storedUser.email,
+          role,
+          isAdmin,
+        };
+
+        setUser(userData);
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        toast.error("Session expired — please log in again.");
+        localStorage.removeItem("pb_token");
+        localStorage.removeItem("pb_role");
+        localStorage.removeItem("pb_user");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
   }, []);
 
-  // ✅ Login action
-  const loginAction = async (token, userData) => {
-    localStorage.setItem("pb_token", token);
-    localStorage.setItem("pb_user", JSON.stringify(userData));
-    API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    setUser(userData);
-    toast.success("Login successful ✅");
+  // ✅ Handles login success
+  const loginAction = (token, userObj) => {
+    try {
+      const role = userObj?.role || "user";
+      const isAdmin = role === "admin";
+
+      localStorage.setItem("pb_token", token);
+      localStorage.setItem("pb_role", role);
+      localStorage.setItem("pb_user", JSON.stringify(userObj));
+
+      API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setUser({ ...userObj, isAdmin });
+
+      toast.success("Login successful ✅");
+
+      // 🔥 Redirect automatically based on role
+      window.location.href = isAdmin ? "/admin/dashboard" : "/dashboard";
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Something went wrong during login");
+    }
   };
 
-  // ✅ Logout action
+  // ✅ Logout user completely
   const logout = () => {
     localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_role");
     localStorage.removeItem("pb_user");
-    delete API.defaults.headers.common["Authorization"];
     setUser(null);
     toast.success("Logged out 👋");
+    window.location.href = "/";
   };
 
   return (
