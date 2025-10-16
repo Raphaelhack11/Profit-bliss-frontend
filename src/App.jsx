@@ -11,8 +11,6 @@ import AdminRoute from "./components/AdminRoute";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import VerifyEmail from "./pages/VerifyEmail";
-import VerifyNotice from "./pages/VerifyNotice";
 
 // User pages
 import Dashboard from "./pages/Dashboard";
@@ -32,31 +30,29 @@ export default function App() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // 🕒 Prevent flicker during auth restore
+  // Wait for auth to load before rendering anything
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-indigo-600 font-semibold">
-        Loading app...
+        Loading...
       </div>
     );
   }
 
-  // 🚫 Hide navbar on admin and auth pages
+  // Hide navbar on certain pages
   const hideNavbar =
     location.pathname.startsWith("/admin") ||
-    ["/", "/login", "/signup", "/verify-email", "/verify-notice"].includes(location.pathname);
+    ["/", "/login", "/signup"].includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* 🌍 Public Routes */}
+        {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/verify-notice" element={<VerifyNotice />} />
 
-        {/* 👤 Protected User Routes */}
+        {/* User protected routes */}
         <Route
           path="/dashboard"
           element={
@@ -106,7 +102,7 @@ export default function App() {
           }
         />
 
-        {/* 🛡️ Admin-only Routes */}
+        {/* Admin protected routes */}
         <Route
           path="/admin/dashboard"
           element={
@@ -140,11 +136,11 @@ export default function App() {
           }
         />
 
-        {/* 🚧 Catch-all Fallback */}
+        {/* Fallback for unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {!hideNavbar && <Navbar />}
     </div>
   );
-          }
+      }
