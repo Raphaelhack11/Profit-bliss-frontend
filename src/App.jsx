@@ -1,8 +1,11 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
-import { useAuth, AuthProvider } from "./authContext";
+import { useAuth } from "./authContext";
+
+// Components
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 // Public pages
 import LandingPage from "./pages/LandingPage";
@@ -16,55 +19,44 @@ import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import History from "./pages/History";
 import SettingsPage from "./pages/SettingsPage";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminPlans from "./pages/admin/AdminPlans";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans";
 
-function ProtectedRoute({ children, adminOnly = false }) {
+export default function App() {
   const { user, loading } = useAuth();
-
-  if (loading)
-    return <div className="p-8 text-center text-gray-600">Loading...</div>;
-
-  if (!user) return <Navigate to="/login" replace />;
-
-  if (adminOnly && user.role !== "admin")
-    return <Navigate to="/dashboard" replace />;
-
-  return children;
-}
-
-function Layout({ children }) {
   const location = useLocation();
-  const hideNavbarOn = ["/", "/login", "/signup", "/verify-email", "/verify-notice"];
+
+  // 🕒 Prevent flicker during auth restore
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-indigo-600 font-semibold">
+        Loading app...
+      </div>
+    );
+  }
+
+  // 🚫 Hide navbar on admin and auth pages
   const hideNavbar =
-    hideNavbarOn.includes(location.pathname) ||
-    location.pathname.startsWith("/admin");
+    location.pathname.startsWith("/admin") ||
+    ["/", "/login", "/signup", "/verify-email", "/verify-notice"].includes(location.pathname);
 
   return (
-    <>
-      {!hideNavbar && <Navbar />}
-      {children}
-    </>
-  );
-}
-
-function AppRoutes() {
-  return (
-    <Layout>
+    <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* Public Routes */}
+        {/* 🌍 Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/verify-notice" element={<VerifyNotice />} />
 
-        {/* User Protected Routes */}
+        {/* 👤 Protected User Routes */}
         <Route
           path="/dashboard"
           element={
@@ -98,6 +90,14 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/settings"
           element={
             <ProtectedRoute>
@@ -106,52 +106,45 @@ function AppRoutes() {
           }
         />
 
-        {/* Admin Routes */}
+        {/* 🛡️ Admin-only Routes */}
         <Route
-          path="/admin"
+          path="/admin/dashboard"
           element={
-            <ProtectedRoute adminOnly>
+            <AdminRoute>
               <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/plans"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminPlans />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         />
         <Route
           path="/admin/deposits"
           element={
-            <ProtectedRoute adminOnly>
+            <AdminRoute>
               <AdminDeposits />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         />
         <Route
           path="/admin/withdrawals"
           element={
-            <ProtectedRoute adminOnly>
+            <AdminRoute>
               <AdminWithdrawals />
-            </ProtectedRoute>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/plans"
+          element={
+            <AdminRoute>
+              <AdminPlans />
+            </AdminRoute>
           }
         />
 
-        {/* Fallback */}
+        {/* 🚧 Catch-all Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Layout>
-  );
-}
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <AppRoutes />
-      <Toaster position="top-right" />
-    </AuthProvider>
+      {!hideNavbar && <Navbar />}
+    </div>
   );
-}
+          }
