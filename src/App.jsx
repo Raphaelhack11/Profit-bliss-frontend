@@ -17,7 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Plans from "./pages/Plans";
 import SettingsPage from "./pages/SettingsPage";
-import Deposits from "./pages/Deposits";
+import Deposit from "./pages/Deposit";
 import Withdrawals from "./pages/Withdrawals";
 
 // Admin Pages
@@ -65,10 +65,10 @@ export default function App() {
           }
         />
         <Route
-          path="/deposits"
+          path="/deposit"
           element={
             <ProtectedRoute>
-              <Deposits />
+              <Deposit />
             </ProtectedRoute>
           }
         />
