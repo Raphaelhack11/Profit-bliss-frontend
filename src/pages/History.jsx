@@ -1,133 +1,69 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
 import toast from "react-hot-toast";
+import DepositAlert from "../components/DepositAlert"; // ✅ Import alert component
 
-export default function History() {
-  const [tab, setTab] = useState("investments");
-  const [investments, setInvestments] = useState([]);
-  const [deposits, setDeposits] = useState([]);
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Plans() {
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
-    fetchAll();
+    const fetchPlans = async () => {
+      try {
+        const res = await API.get("/plans");
+        setPlans(res.data);
+      } catch (err) {
+        toast.error("Failed to load plans");
+      }
+    };
+    fetchPlans();
   }, []);
 
-  async function fetchAll() {
-    try {
-      const [inv, dep, wit] = await Promise.all([
-        API.get("/investments/history"),
-        API.get("/transactions?type=deposit"),
-        API.get("/transactions?type=withdrawal"),
-      ]);
-      setInvestments(inv.data);
-      setDeposits(dep.data);
-      setWithdrawals(wit.data);
-    } catch {
-      toast.error("Failed to load history ❌");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const tabs = [
-    { key: "investments", label: "Investments" },
-    { key: "deposits", label: "Deposits" },
-    { key: "withdrawals", label: "Withdrawals" },
-  ];
-
-  const activeData =
-    tab === "investments"
-      ? investments
-      : tab === "deposits"
-      ? deposits
-      : withdrawals;
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 text-gray-900 px-6 py-12">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-extrabold text-center bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent mb-10">
-          Transaction History
+    <div className="min-h-screen bg-gradient-to-b from-white to-indigo-50 text-gray-900 px-6 py-10 relative">
+      {/* 💸 Real-time deposit alert */}
+      <DepositAlert />
+
+      <div className="max-w-5xl mx-auto text-center mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold text-indigo-700 mb-4">
+          Investment Plans
         </h2>
+        <p className="text-gray-600">
+          Choose a plan that suits your financial goals and start earning today.
+        </p>
+      </div>
 
-        {/* Tabs */}
-        <div className="flex justify-center gap-6 mb-8 border-b border-gray-200">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`pb-3 font-semibold transition ${
-                tab === t.key
-                  ? "text-purple-700 border-b-2 border-purple-600"
-                  : "text-gray-500 hover:text-purple-600"
-              }`}
+      <div className="grid gap-8 md:grid-cols-3 sm:grid-cols-2">
+        {plans.length > 0 ? (
+          plans.map((plan) => (
+            <div
+              key={plan._id}
+              className="bg-white shadow-lg rounded-2xl p-6 border border-indigo-100 hover:shadow-2xl transition"
             >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="text-center text-gray-500">Loading...</div>
+              <h3 className="text-xl font-bold text-indigo-700 mb-2">{plan.name}</h3>
+              <p className="text-gray-600 mb-4">{plan.description}</p>
+              <ul className="text-gray-700 text-sm mb-6 space-y-2">
+                <li>
+                  <b>Min Deposit:</b> ${plan.minDeposit}
+                </li>
+                <li>
+                  <b>ROI:</b> {plan.roi}%
+                </li>
+                <li>
+                  <b>Duration:</b> {plan.duration} days
+                </li>
+              </ul>
+              <button
+                onClick={() => toast.success(`Selected ${plan.name} plan`)}
+                className="w-full py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+              >
+                Invest Now
+              </button>
+            </div>
+          ))
         ) : (
-          <div className="overflow-x-auto bg-white shadow-md rounded-2xl border border-purple-100">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-purple-50 text-purple-700 uppercase text-xs">
-                <tr>
-                  <th className="px-6 py-3">Amount</th>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeData.length > 0 ? (
-                  activeData.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-t border-gray-100 hover:bg-purple-50 transition"
-                    >
-                      <td
-                        className={`px-6 py-3 font-semibold ${
-                          tab === "withdrawals"
-                            ? "text-red-600"
-                            : "text-green-600"
-                        }`}
-                      >
-                        ${item.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-3">
-                        {new Date(item.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            item.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : item.status === "pending"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="3"
-                      className="px-6 py-6 text-center text-gray-400"
-                    >
-                      No records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <p className="text-center text-gray-500 col-span-3">No plans available yet.</p>
         )}
       </div>
     </div>
   );
-      }
+}
