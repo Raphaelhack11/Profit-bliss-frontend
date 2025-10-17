@@ -1,35 +1,29 @@
+import React from "react";
 import { NavLink } from "react-router-dom";
-import {
-  Home,
-  Layers,
-  BarChart2,
-  Wallet as WalletIcon,
-  Settings,
-} from "lucide-react";
-
-const navItems = [
-  { to: "/dashboard", label: "Home", icon: <Home size={20} /> },
-  { to: "/plans", label: "Plans", icon: <Layers size={20} /> },
-  { to: "/investments", label: "Invest", icon: <BarChart2 size={20} /> },
-  { to: "/wallet", label: "Wallet", icon: <WalletIcon size={20} /> },
-  { to: "/settings", label: "Settings", icon: <Settings size={20} /> },
-];
+import { Home, DollarSign, Clock, Settings } from "lucide-react";
 
 export default function Navbar() {
+  const links = [
+    { to: "/dashboard", icon: <Home size={22} />, label: "Home" },
+    { to: "/plans", icon: <DollarSign size={22} />, label: "Plans" },
+    { to: "/history", icon: <Clock size={22} />, label: "History" },
+    { to: "/settings", icon: <Settings size={22} />, label: "Settings" },
+  ];
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-indigo-600 flex justify-around py-2 shadow-lg z-40">
-      {navItems.map((item) => (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md flex justify-around py-2 z-50">
+      {links.map((link) => (
         <NavLink
-          key={item.to}
-          to={item.to}
+          key={link.to}
+          to={link.to}
           className={({ isActive }) =>
-            `flex flex-col items-center text-xs gap-1 py-1 ${
-              isActive ? "text-white" : "text-indigo-200"
+            `flex flex-col items-center text-sm font-medium ${
+              isActive ? "text-indigo-600" : "text-gray-500"
             }`
           }
         >
-          {item.icon}
-          <span>{item.label}</span>
+          {link.icon}
+          <span className="text-xs mt-1">{link.label}</span>
         </NavLink>
       ))}
     </nav>
