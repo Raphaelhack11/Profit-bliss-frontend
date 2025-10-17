@@ -5,7 +5,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import { useAuth } from "./authContext";
 
-import Landing from "./pages/LandingPage";
+// ✅ Make sure these file names match exactly
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
@@ -68,8 +69,8 @@ export default function App() {
         />
       </Routes>
 
-      {/* Show Navbar only for regular users */}
+      {/* Show Navbar only for non-admin users */}
       {user && user.role !== "admin" && <Navbar />}
     </div>
   );
-              }
+          }
