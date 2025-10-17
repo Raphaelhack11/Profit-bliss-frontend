@@ -1,85 +1,69 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
 import toast from "react-hot-toast";
+import DepositAlert from "../components/DepositAlert"; // ✅ Import alert component
 
 export default function Plans() {
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await API.get("/plans");
+        setPlans(res.data);
+      } catch (err) {
+        toast.error("Failed to load plans");
+      }
+    };
     fetchPlans();
   }, []);
 
-  async function fetchPlans() {
-    try {
-      const res = await API.get("/plans");
-      setPlans(res.data);
-    } catch {
-      toast.error("Failed to load plans ❌");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 text-gray-900 px-6 py-12">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-700 text-transparent bg-clip-text mb-4">
+    <div className="min-h-screen bg-gradient-to-b from-white to-indigo-50 text-gray-900 px-6 py-10 relative">
+      {/* 💸 Real-time deposit alert */}
+      <DepositAlert />
+
+      <div className="max-w-5xl mx-auto text-center mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold text-indigo-700 mb-4">
           Investment Plans
         </h2>
-        <p className="text-gray-600 mb-12">
-          Choose a plan that fits your goals and start earning today!
+        <p className="text-gray-600">
+          Choose a plan that suits your financial goals and start earning today.
         </p>
+      </div>
 
-        {loading ? (
-          <div className="text-gray-500 text-lg">Loading plans...</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-purple-100 transition-all duration-300"
+      <div className="grid gap-8 md:grid-cols-3 sm:grid-cols-2">
+        {plans.length > 0 ? (
+          plans.map((plan) => (
+            <div
+              key={plan._id}
+              className="bg-white shadow-lg rounded-2xl p-6 border border-indigo-100 hover:shadow-2xl transition"
+            >
+              <h3 className="text-xl font-bold text-indigo-700 mb-2">{plan.name}</h3>
+              <p className="text-gray-600 mb-4">{plan.description}</p>
+              <ul className="text-gray-700 text-sm mb-6 space-y-2">
+                <li>
+                  <b>Min Deposit:</b> ${plan.minDeposit}
+                </li>
+                <li>
+                  <b>ROI:</b> {plan.roi}%
+                </li>
+                <li>
+                  <b>Duration:</b> {plan.duration} days
+                </li>
+              </ul>
+              <button
+                onClick={() => toast.success(`Selected ${plan.name} plan`)}
+                className="w-full py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
               >
-                <h3 className="text-2xl font-bold text-indigo-700 mb-3">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-500 mb-4">{plan.description}</p>
-
-                <div className="space-y-1 text-gray-700">
-                  <p>
-                    <strong>Min Amount:</strong> ${plan.minAmount}
-                  </p>
-                  <p>
-                    <strong>ROI:</strong> {plan.roi}%
-                  </p>
-                  <p>
-                    <strong>Duration:</strong> {plan.duration} days
-                  </p>
-                </div>
-
-                <button
-                  onClick={async () => {
-                    try {
-                      await API.post("/investments/subscribe", {
-                        planId: plan.id,
-                        amount: plan.minAmount,
-                      });
-                      toast.success("Investment started ✅");
-                    } catch (err) {
-                      toast.error(
-                        err.response?.data?.error || "Investment failed ❌"
-                      );
-                    }
-                  }}
-                  className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold hover:opacity-90 transition"
-                >
-                  Invest ${plan.minAmount}
-                </button>
-              </div>
-            ))}
-          </div>
+                Invest Now
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 col-span-3">No plans available yet.</p>
         )}
       </div>
     </div>
   );
-}
+              }
