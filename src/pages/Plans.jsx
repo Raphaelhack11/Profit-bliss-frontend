@@ -1,10 +1,10 @@
-// src/pages/Plans.jsx
 import React, { useEffect, useState } from "react";
 import API from "../api";
 import toast from "react-hot-toast";
 
 export default function Plans() {
   const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPlans();
@@ -16,64 +16,70 @@ export default function Plans() {
       setPlans(res.data);
     } catch {
       toast.error("Failed to load plans ❌");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 px-6 py-10">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-indigo-700 mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 text-gray-900 px-6 py-12">
+      <div className="max-w-6xl mx-auto text-center">
+        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-700 text-transparent bg-clip-text mb-4">
           Investment Plans
         </h2>
-        <p className="text-gray-600 text-center mb-12">
-          Choose a plan that fits your budget and goals. Start investing today!
+        <p className="text-gray-600 mb-12">
+          Choose a plan that fits your goals and start earning today!
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <div
-              key={plan.id} // ✅ Use plan.id since Prisma uses UUID
-              className="p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition bg-white"
-            >
-              <h3 className="text-xl font-semibold text-indigo-700 mb-2">
-                {plan.name}
-              </h3>
-
-              {/* ✅ Show description if available */}
-              {plan.description && (
-                <p className="text-gray-500 text-sm mb-3">
-                  {plan.description}
-                </p>
-              )}
-
-              <p className="text-gray-600 mb-1">Minimum: ${plan.minAmount}</p>
-              <p className="text-gray-600 mb-1">ROI: {plan.roi}%</p>
-              <p className="text-gray-600 mb-4">
-                Duration: {plan.duration} days
-              </p>
-
-              <button
-                onClick={async () => {
-                  try {
-                    await API.post("/investments/subscribe", {
-                      planId: plan.id,
-                      amount: plan.minAmount,
-                    });
-                    toast.success("Investment started ✅");
-                  } catch (err) {
-                    toast.error(
-                      err.response?.data?.error || "Investment failed ❌"
-                    );
-                  }
-                }}
-                className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
+        {loading ? (
+          <div className="text-gray-500 text-lg">Loading plans...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-purple-100 transition-all duration-300"
               >
-                Invest ${plan.minAmount}
-              </button>
-            </div>
-          ))}
-        </div>
+                <h3 className="text-2xl font-bold text-indigo-700 mb-3">
+                  {plan.name}
+                </h3>
+                <p className="text-gray-500 mb-4">{plan.description}</p>
+
+                <div className="space-y-1 text-gray-700">
+                  <p>
+                    <strong>Min Amount:</strong> ${plan.minAmount}
+                  </p>
+                  <p>
+                    <strong>ROI:</strong> {plan.roi}%
+                  </p>
+                  <p>
+                    <strong>Duration:</strong> {plan.duration} days
+                  </p>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      await API.post("/investments/subscribe", {
+                        planId: plan.id,
+                        amount: plan.minAmount,
+                      });
+                      toast.success("Investment started ✅");
+                    } catch (err) {
+                      toast.error(
+                        err.response?.data?.error || "Investment failed ❌"
+                      );
+                    }
+                  }}
+                  className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold hover:opacity-90 transition"
+                >
+                  Invest ${plan.minAmount}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-    }
+}
