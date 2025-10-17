@@ -1,68 +1,62 @@
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Bitcoin, DollarSign } from "lucide-react";
 
 const names = [
-  "Emma", "James", "Sophia", "Daniel", "Olivia", "Liam", "Noah", "Ava",
-  "Isabella", "Mason", "Lucas", "Mia", "Ethan", "Charlotte", "Benjamin",
-  "Amelia", "Henry", "Harper", "Elijah", "Evelyn", "Michael", "Grace",
-  "Jacob", "Ella", "Samuel", "Scarlett", "David", "Victoria"
+  "John M.", "Sarah T.", "David R.", "Emma W.", "Michael B.", "Olivia K.",
+  "Daniel L.", "Sophia C.", "James A.", "Isabella N.", "Ethan D.", "Liam F.",
+  "Noah J.", "Mason G.", "Ava H.", "Lucas P.", "Charlotte Q.", "Amelia Z.",
+  "Henry O.", "Elijah V.", "Emily D.", "Benjamin S.", "Chloe B.", "Logan C.",
+  "Victoria F.", "Alexander W.", "Grace H.", "Jacob T.", "Madison P.",
+  "Jackson K.", "Ella L.", "William N.", "Mila R.", "Owen E.", "Harper S.",
+  "Caleb J.", "Abigail M.", "Levi Q.", "Lily G.", "Matthew A.", "Zoe W.",
+  "Sebastian P.", "Aria C.", "Ryan D.", "Layla H.", "Carter V.", "Nora O.",
+  "Dylan B.", "Hazel T.", "Eleanor K.", "Hudson F."
 ];
 
-const amounts = [100, 250, 500, 700, 1200, 3000, 5000, 7000, 9000, 15000, 20000, 25000];
-
-const cryptos = [
-  { name: "Bitcoin", icon: "₿", color: "text-yellow-400" },
-  { name: "Ethereum", icon: "Ξ", color: "text-blue-400" },
-  { name: "USDT", icon: "$", color: "text-green-400" },
+const amounts = [
+  100, 100, 200, 250, 326, 350, 400, 450, 500, 550,
+  600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100,
+  1200, 1358, 1400, 1500, 1610, 1700, 1800, 1900, 2000,
+  2200, 2400, 2600, 2800, 3000, 3200, 3420, 3600, 3800,
+  4000, 4200, 4500, 4700, 5000, 5500, 6000, 6500, 7000,
+  7500, 8000, 8500, 730
 ];
-
-const flags = ["🇺🇸", "🇬🇧", "🇨🇦", "🇩🇪", "🇫🇷", "🇳🇬", "🇰🇪", "🇿🇦", "🇮🇳", "🇦🇺", "🇧🇷", "🇸🇬"];
 
 export default function DepositAlert() {
-  const [alert, setAlert] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [alert, setAlert] = useState({ name: "", amount: 0 });
 
   useEffect(() => {
-    const showAlert = () => {
+    const showRandom = () => {
       const randomName = names[Math.floor(Math.random() * names.length)];
       const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-      const randomCrypto = cryptos[Math.floor(Math.random() * cryptos.length)];
-      const randomFlag = flags[Math.floor(Math.random() * flags.length)];
-
-      setAlert({
-        message: `${randomName} ${randomFlag} just deposited $${randomAmount} in ${randomCrypto.name}`,
-        crypto: randomCrypto,
-      });
-
-      setTimeout(() => setAlert(null), 5000);
+      setAlert({ name: randomName, amount: randomAmount });
+      setVisible(true);
+      setTimeout(() => setVisible(false), 4000);
     };
 
-    showAlert();
-    const interval = setInterval(showAlert, 15000);
-    return () => clearInterval(interval);
+    // first alert after 3s, then every 15s
+    const interval = setInterval(showRandom, 15000);
+    const initial = setTimeout(showRandom, 3000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initial);
+    };
   }, []);
 
   return (
-    <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-50">
-      <AnimatePresence>
-        {alert && (
-          <motion.div
-            key={alert.message}
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 50 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white/90 backdrop-blur-md border border-indigo-200 text-gray-800 text-sm px-5 py-3 rounded-xl shadow-xl flex items-center gap-3"
-          >
-            <span
-              className={`text-lg font-bold ${alert.crypto.color} drop-shadow-sm`}
-            >
-              {alert.crypto.icon}
-            </span>
-            <span className="font-medium">{alert.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div
+      className={`fixed right-4 md:right-8 bottom-24 md:bottom-20 bg-white shadow-xl border border-gray-200 rounded-xl px-5 py-3 w-[270px] sm:w-[320px] text-gray-800 text-sm font-medium transition-all duration-500 ${
+        visible
+          ? "opacity-100 translate-x-0"
+          : "opacity-0 translate-x-5 pointer-events-none"
+      }`}
+      style={{ zIndex: 9999 }}
+    >
+      💰 <span className="font-semibold">{alert.name}</span> just deposited{" "}
+      <span className="text-green-600 font-semibold">
+        ${alert.amount.toLocaleString()}
+      </span>
     </div>
   );
 }
