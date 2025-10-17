@@ -18,7 +18,7 @@ import History from "./pages/History";
 import Plans from "./pages/Plans";
 import SettingsPage from "./pages/SettingsPage";
 import Deposit from "./pages/Deposit";
-import Withdrawals from "./pages/Withdrawals";
+import Withdraw from "./pages/Withdraw";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -73,10 +73,10 @@ export default function App() {
           }
         />
         <Route
-          path="/withdrawals"
+          path="/withdraw"
           element={
             <ProtectedRoute>
-              <Withdrawals />
+              <Withdraw />
             </ProtectedRoute>
           }
         />
