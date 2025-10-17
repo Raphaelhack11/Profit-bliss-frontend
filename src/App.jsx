@@ -1,45 +1,34 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
-
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import Plans from "./pages/Plans";
-import History from "./pages/History";
-import SettingsPage from "./pages/SettingsPage";
-
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminRoute from "./components/AdminRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
+import { useAuth } from "./authContext";
 
-function App() {
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import History from "./pages/History";
+import Plans from "./pages/Plans";
+import SettingsPage from "./pages/SettingsPage";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
+export default function App() {
+  const { user } = useAuth();
+
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
-      <Toaster position="top-center" />
-
+    <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* Public Routes */}
+        {/* Public */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
 
-        {/* Protected User Routes */}
+        {/* User */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
-              <Navbar />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans"
-          element={
-            <ProtectedRoute>
-              <Plans />
-              <Navbar />
             </ProtectedRoute>
           }
         />
@@ -48,7 +37,14 @@ function App() {
           element={
             <ProtectedRoute>
               <History />
-              <Navbar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/plans"
+          element={
+            <ProtectedRoute>
+              <Plans />
             </ProtectedRoute>
           }
         />
@@ -57,12 +53,11 @@ function App() {
           element={
             <ProtectedRoute>
               <SettingsPage />
-              <Navbar />
             </ProtectedRoute>
           }
         />
 
-        {/* Admin Route */}
+        {/* Admin */}
         <Route
           path="/admin/dashboard"
           element={
@@ -71,12 +66,10 @@ function App() {
             </AdminRoute>
           }
         />
-
-        {/* Fallback */}
-        <Route path="*" element={<Login />} />
       </Routes>
+
+      {/* Show Navbar only for regular users */}
+      {user && user.role !== "admin" && <Navbar />}
     </div>
   );
-}
-
-export default App;
+              }
