@@ -13,23 +13,26 @@ const names = [
 ];
 
 const amounts = [
-  100, 100, 200, 250, 326, 350, 400, 450, 500, 550,
+  100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
   600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100,
-  1200, 1358, 1400, 1500, 1610, 1700, 1800, 1900, 2000,
-  2200, 2400, 2600, 2800, 3000, 3200, 3420, 3600, 3800,
+  1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+  2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800,
   4000, 4200, 4500, 4700, 5000, 5500, 6000, 6500, 7000,
-  7500, 8000, 8500, 730
+  7500, 8000, 8500, 9000
 ];
+
+const actions = ["deposited", "withdrew"];
 
 export default function DepositAlert() {
   const [visible, setVisible] = useState(false);
-  const [alert, setAlert] = useState({ name: "", amount: 0 });
+  const [alert, setAlert] = useState({ name: "", amount: 0, action: "" });
 
   useEffect(() => {
     const showRandom = () => {
       const randomName = names[Math.floor(Math.random() * names.length)];
       const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-      setAlert({ name: randomName, amount: randomAmount });
+      const randomAction = actions[Math.floor(Math.random() * actions.length)];
+      setAlert({ name: randomName, amount: randomAmount, action: randomAction });
       setVisible(true);
       setTimeout(() => setVisible(false), 4000);
     };
@@ -53,10 +56,17 @@ export default function DepositAlert() {
       }`}
       style={{ zIndex: 9999 }}
     >
-      💰 <span className="font-semibold">{alert.name}</span> just deposited{" "}
-      <span className="text-green-600 font-semibold">
+      💰 <span className="font-semibold">{alert.name}</span>{" "}
+      just {alert.action}{" "}
+      <span
+        className={`font-semibold ${
+          alert.action === "deposited"
+            ? "text-green-600"
+            : "text-red-600"
+        }`}
+      >
         ${alert.amount.toLocaleString()}
       </span>
     </div>
   );
-}
+    }
