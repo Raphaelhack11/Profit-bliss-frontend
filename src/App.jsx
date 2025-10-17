@@ -5,7 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import { useAuth } from "./authContext";
 
-import Landing from "./pages/Landing";
+import Landing from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
@@ -20,7 +20,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       <Routes>
         {/* Public */}
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
 
         {/* User */}
