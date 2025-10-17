@@ -1,27 +1,8 @@
 import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const fakeNames = [
-  "John M.", "Sarah T.", "David R.", "Emma W.", "Michael B.", "Olivia K.",
-  "Daniel L.", "Sophia C.", "James A.", "Isabella N.", "Ethan D.", "Liam F.",
-  "Noah J.", "Mason G.", "Ava H.", "Lucas P.", "Charlotte Q.", "Amelia Z.",
-  "Henry O.", "Elijah V.", "Emily D.", "Benjamin S.", "Chloe B.", "Logan C.",
-  "Victoria F.", "Alexander W.", "Grace H.", "Jacob T.", "Madison P.",
-  "Jackson K.", "Ella L.", "William N.", "Mila R.", "Owen E.", "Harper S.",
-  "Caleb J.", "Abigail M.", "Levi Q.", "Lily G.", "Matthew A.", "Zoe W.",
-  "Sebastian P.", "Aria C.", "Ryan D.", "Layla H.", "Carter V.", "Nora O.",
-  "Dylan B.", "Hazel T.", "Eleanor K.", "Hudson F."
-];
-const fakeAmounts = [
-  100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
-  600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100,
-  1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-  2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800,
-  4000, 4200, 4500, 4700, 5000, 5500, 6000, 6500, 7000,
-  7500, 8000, 8500, 9000
-];
-const actions = ["deposited", "withdrew"];
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const plans = [
   { name: "Basic", minAmount: 100, roi: 20, duration: 7 },
@@ -51,6 +32,18 @@ const testimonials = [
   },
 ];
 
+const fakeNames = [
+  "Bryan", "Sophia", "Michael", "Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan",
+  "Isabella", "James", "Mia", "Alexander", "Amelia", "Benjamin", "Charlotte", "Colin", "Raphael",
+  "Henry", "Ella", "Lucas", "Chloe", "Daniel", "Harper", "Sebastian", "Luna", "Jack", "Scarlett",
+  "Owen", "Victoria", "Elijah", "Grace", "Mason", "Zoe", "Jacob", "Nora", "Carter", "Layla", "Leo", "Hannah"
+];
+
+const fakeAmounts = [
+  50, 75, 120, 200, 300, 500, 750, 900, 1000, 1500, 2000, 2500, 3000,
+  4000, 4500, 5000, 6000, 7000, 8500, 9000, 10000, 12000, 15000
+];
+
 function Counter({ target, duration = 2000, suffix = "" }) {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -64,74 +57,38 @@ function Counter({ target, duration = 2000, suffix = "" }) {
     }, step);
     return () => clearInterval(timer);
   }, [target, duration]);
-  return (
-    <span className="text-3xl md:text-4xl font-bold text-indigo-600">
-      {count}
-      {suffix}
-    </span>
-  );
-}
-
-// 💰 Floating alert component (bottom-middle-right)
-function DepositAlert() {
-  const [visible, setVisible] = useState(false);
-  const [alert, setAlert] = useState({ name: "", amount: 0, action: "" });
-
-  useEffect(() => {
-    const showRandom = () => {
-      const randomName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-      const randomAmount = fakeAmounts[Math.floor(Math.random() * fakeAmounts.length)];
-      const randomAction = actions[Math.floor(Math.random() * actions.length)];
-      setAlert({ name: randomName, amount: randomAmount, action: randomAction });
-      setVisible(true);
-      setTimeout(() => setVisible(false), 4000);
-    };
-
-    const interval = setInterval(showRandom, 15000);
-    const initial = setTimeout(showRandom, 3000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(initial);
-    };
-  }, []);
-
-  return (
-    <div
-      className={`fixed right-2 sm:right-5 bottom-24 md:bottom-20 bg-white border border-gray-200 rounded-xl px-5 py-3 w-[270px] sm:w-[320px] text-gray-800 text-sm font-medium shadow-xl transition-all duration-500 ${
-        visible
-          ? "opacity-100 translate-x-0"
-          : "opacity-0 translate-x-5 pointer-events-none"
-      }`}
-      style={{ zIndex: 9999 }}
-    >
-      💰{" "}
-      <span className="font-semibold">{alert.name}</span>{" "}
-      just {alert.action}{" "}
-      <span
-        className={`font-semibold ${
-          alert.action === "deposited" ? "text-green-600" : "text-red-600"
-        }`}
-      >
-        ${alert.amount.toLocaleString()}
-      </span>
-    </div>
-  );
+  return <span className="text-3xl md:text-4xl font-bold text-indigo-600">{count}{suffix}</span>;
 }
 
 export default function LandingPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-800 relative">
-      <DepositAlert />
+  // Simulated alerts
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+      const amount = fakeAmounts[Math.floor(Math.random() * fakeAmounts.length)];
+      const type = Math.random() > 0.5 ? "deposited" : "withdrew";
+      toast.success(`${name} just ${type} $${amount}`, {
+        position: "top-right",
+        duration: 4000,
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-gray-800">
       {/* Navbar */}
       <header className="w-full py-4 px-5 flex justify-between items-center border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-2">
-          <img
-            src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029"
+          {/* Spinning Bitcoin logo */}
+          <motion.img
+            src="https://cdn3d.iconscout.com/3d/premium/thumb/bitcoin-3d-icon-download-in-png-blend-fbx-gltf-file-formats--crypto-currency-coin-money-pack-finance-icons-7298789.png"
             alt="Bitcoin Logo"
-            className="w-9 h-9 drop-shadow-md"
+            className="w-10 h-10 md:w-12 md:h-12"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
           />
           <h1 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
             EquiGrow
@@ -197,8 +154,106 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats, Features, Plans, Testimonials, Contact (unchanged) */}
-      {/* ... keep your existing sections here ... */}
+      {/* Stats */}
+      <section className="bg-indigo-50 py-12">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div><Counter target={500} suffix="+" /><p className="mt-2 text-gray-600">Active Investors</p></div>
+          <div><Counter target={100} suffix="k+" /><p className="mt-2 text-gray-600">Total Payouts ($)</p></div>
+          <div><Counter target={6} /><p className="mt-2 text-gray-600">Plans Available</p></div>
+          <div><Counter target={98} suffix="%" /><p className="mt-2 text-gray-600">Customer Satisfaction</p></div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Feature icon={Shield} title="Secure" text="Top security practices protect your funds and data." />
+          <Feature icon={Clock} title="Fast Payouts" text="Quick withdrawals and transparent processing times." />
+          <Feature icon={TrendingUp} title="High ROI" text="Plans designed for sustainable growth and returns." />
+        </div>
+      </section>
+
+      {/* Plans */}
+      <section className="bg-indigo-50 py-16">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900">Our Investment Plans</h2>
+          <p className="text-gray-600 mb-10">Flexible plans tailored to your financial goals.</p>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <div key={plan.name} className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">{plan.name}</h3>
+                <p className="text-gray-600 mb-2">Min Deposit: <span className="font-semibold">${plan.minAmount}</span></p>
+                <p className="text-gray-600 mb-2">ROI: {plan.roi}%</p>
+                <p className="text-gray-600 mb-6">Duration: {plan.duration} days</p>
+                <Link
+                  to="/signup"
+                  className="block w-full py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
+                >
+                  Invest Now
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-12 text-gray-900">What Our Investors Say</h2>
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <div key={i} className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+                <div className="mb-3 flex justify-center text-yellow-400">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star key={idx} className="h-5 w-5 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 italic mb-4">“{t.feedback}”</p>
+                <h4 className="font-semibold text-gray-800">{t.name}</h4>
+                <p className="text-sm text-gray-500">{t.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="py-16 bg-indigo-50">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">Contact Us</h2>
+          {formSubmitted ? (
+            <p className="text-green-600 font-semibold">✅ Thank you! We’ll get back to you soon.</p>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setFormSubmitted(true);
+              }}
+              className="space-y-4 bg-white p-6 rounded-xl shadow"
+            >
+              <input
+                type="email"
+                placeholder="Your Email"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              />
+              <textarea
+                placeholder="Your Message"
+                rows="4"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              ></textarea>
+              <button
+                type="submit"
+                className="px-6 py-3 w-full rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
+              >
+                Send Message
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
 
       <footer className="py-6 text-center text-gray-500 text-sm border-t border-gray-200">
         © {new Date().getFullYear()} EquiGrow. All rights reserved.
@@ -206,3 +261,13 @@ export default function LandingPage() {
     </div>
   );
 }
+
+function Feature({ icon: Icon, title, text }) {
+  return (
+    <div className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+      <Icon className="h-8 w-8 text-indigo-600 mb-3" />
+      <h3 className="text-lg font-semibold mb-1">{title}</h3>
+      <p className="text-gray-600">{text}</p>
+    </div>
+  );
+    }
