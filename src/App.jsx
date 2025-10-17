@@ -22,7 +22,7 @@ import Withdrawals from "./pages/Withdrawals";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminDeposit from "./pages/admin/AdminDeposit";
+import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawal from "./pages/admin/AdminWithdrawal";
 import AdminPlans from "./pages/admin/AdminPlans";
 
@@ -99,10 +99,10 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/deposit"
+          path="/admin/deposits"
           element={
             <AdminRoute>
-              <AdminDeposit />
+              <AdminDeposits />
             </AdminRoute>
           }
         />
