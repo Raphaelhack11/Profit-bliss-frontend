@@ -1,90 +1,213 @@
-import React, { useState, useEffect } from "react";
-import { LogOut, User, Shield } from "lucide-react";
+import React, { useState } from "react";
 import API from "../api";
-import { useAuth } from "../authContext";
 import toast from "react-hot-toast";
+import { useAuth } from "../authContext";
 
-export default function Settings() {
+export default function SettingsPage() {
   const { user, logout } = useAuth();
-  const [wallet, setWallet] = useState(null);
-  const [passwords, setPasswords] = useState({ current: "", new: "" });
+  const [activeTab, setActiveTab] = useState("profile");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchWallet();
-  }, []);
+  // profile
+  const [name, setName] = useState(user?.name || "");
 
-  async function fetchWallet() {
+  // password
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  // finance
+  const [wallet, setWallet] = useState(user?.wallet || "");
+  const [currency, setCurrency] = useState(user?.currency || "USD");
+
+  const handleProfileUpdate = async () => {
+    if (!name) return toast.error("Name cannot be empty");
+    setLoading(true);
     try {
-      const res = await API.get("/wallet");
-      setWallet(res.data);
+      await API.put("/users/profile", { name });
+      toast.success("Profile updated successfully ✅");
     } catch (err) {
-      toast.error("Failed to load wallet ❌");
-    }
-  }
-
-  const changePassword = async (e) => {
-    e.preventDefault();
-    try {
-      await API.post("/auth/change-password", passwords);
-      toast.success("✅ Password changed successfully");
-      setPasswords({ current: "", new: "" });
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Password change failed");
+      toast.error(err.response?.data?.error || "Failed to update profile ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handlePasswordChange = async () => {
+    if (!oldPassword || !newPassword)
+      return toast.error("Please fill both password fields");
+    setLoading(true);
+    try {
+      await API.put("/auth/change-password", { oldPassword, newPassword });
+      toast.success("Password updated successfully ✅");
+      setOldPassword("");
+      setNewPassword("");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to change password ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinanceUpdate = async () => {
+    setLoading(true);
+    try {
+      await API.put("/users/finance", { wallet, currency });
+      toast.success("Finance settings updated ✅");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to update ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const TabButton = ({ label, id }) => (
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+        activeTab === id
+          ? "bg-indigo-600 text-white shadow-md"
+          : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div className="space-y-8 max-w-2xl mx-auto py-10 px-4">
-      {/* Profile / Wallet */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-xl shadow-lg">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <User size={22} className="text-white" /> Profile
-        </h2>
-        <p className="mb-1"><b>Email:</b> {user?.email}</p>
-        <p className="mb-1"><b>Wallet ID:</b> {wallet?.id}</p>
-        <p><b>Balance:</b> ${wallet?.balance?.toFixed(2) ?? "0.00"}</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 pb-20">
+      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6">
+        <h1 className="text-2xl font-bold text-indigo-700 mb-6 text-center">
+          Settings
+        </h1>
 
-      {/* Change Password */}
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-slate-700">
-          <Shield size={22} className="text-green-600" /> Security
-        </h2>
-        <form onSubmit={changePassword} className="space-y-4">
-          <input
-            type="password"
-            placeholder="Current password"
-            value={passwords.current}
-            onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-            className="w-full p-3 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-          <input
-            type="password"
-            placeholder="New password"
-            value={passwords.new}
-            onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-            className="w-full p-3 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
+        {/* Tabs */}
+        <div className="flex justify-center gap-2 mb-6 flex-wrap">
+          <TabButton label="Profile" id="profile" />
+          <TabButton label="Security" id="security" />
+          <TabButton label="Finance" id="finance" />
+          <TabButton label="Preferences" id="preferences" />
+        </div>
+
+        {/* Profile Tab */}
+        {activeTab === "profile" && (
+          <div className="space-y-4 animate-fadeIn">
+            <label className="block text-sm font-medium text-gray-600">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border rounded-xl p-3 focus:ring focus:ring-indigo-200 outline-none"
+            />
+
+            <label className="block text-sm font-medium text-gray-600">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={user?.email}
+              disabled
+              className="w-full border rounded-xl p-3 bg-gray-100 text-gray-500 cursor-not-allowed"
+            />
+
+            <button
+              onClick={handleProfileUpdate}
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl transition disabled:opacity-60"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        )}
+
+        {/* Security Tab */}
+        {activeTab === "security" && (
+          <div className="space-y-4 animate-fadeIn">
+            <label className="block text-sm font-medium text-gray-600">
+              Old Password
+            </label>
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full border rounded-xl p-3 focus:ring focus:ring-indigo-200 outline-none"
+            />
+
+            <label className="block text-sm font-medium text-gray-600">
+              New Password
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full border rounded-xl p-3 focus:ring focus:ring-indigo-200 outline-none"
+            />
+
+            <button
+              onClick={handlePasswordChange}
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl transition disabled:opacity-60"
+            >
+              {loading ? "Updating..." : "Change Password"}
+            </button>
+          </div>
+        )}
+
+        {/* Finance Tab */}
+        {activeTab === "finance" && (
+          <div className="space-y-4 animate-fadeIn">
+            <label className="block text-sm font-medium text-gray-600">
+              Wallet Address
+            </label>
+            <input
+              type="text"
+              value={wallet}
+              onChange={(e) => setWallet(e.target.value)}
+              className="w-full border rounded-xl p-3 focus:ring focus:ring-indigo-200 outline-none"
+              placeholder="Enter wallet address"
+            />
+
+            <label className="block text-sm font-medium text-gray-600">
+              Preferred Currency
+            </label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full border rounded-xl p-3 focus:ring focus:ring-indigo-200 outline-none"
+            >
+              <option value="USD">USD</option>
+              <option value="NGN">NGN</option>
+              <option value="EUR">EUR</option>
+            </select>
+
+            <button
+              onClick={handleFinanceUpdate}
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl transition disabled:opacity-60"
+            >
+              {loading ? "Saving..." : "Update Finance Info"}
+            </button>
+          </div>
+        )}
+
+        {/* Preferences Tab */}
+        {activeTab === "preferences" && (
+          <div className="space-y-6 animate-fadeIn text-center text-gray-600">
+            <p>Coming soon: Theme, Notifications, and Language options 🌙✨</p>
+          </div>
+        )}
+
+        {/* Logout */}
+        <div className="pt-6 mt-6 border-t text-center">
           <button
-            type="submit"
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:opacity-90 transition"
+            onClick={logout}
+            className="text-red-500 font-semibold hover:underline"
           >
-            Change Password
+            Logout
           </button>
-        </form>
-      </div>
-
-      {/* Logout */}
-      <div className="flex justify-end">
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 px-5 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition"
-        >
-          <LogOut size={18} /> Logout
-        </button>
+        </div>
       </div>
     </div>
   );
-      }
+}
