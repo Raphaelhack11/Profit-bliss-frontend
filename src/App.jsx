@@ -5,18 +5,23 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import { useAuth } from "./authContext";
 
-// ✅ Pages
+// Public Pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import VerifyEmail from "./pages/VerifyEmail";
+import VerifyNotice from "./pages/VerifyNotice";
+
+// User Pages
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Plans from "./pages/Plans";
 import SettingsPage from "./pages/SettingsPage";
 
-// ✅ Admin Pages
+// Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminPlans from "./pages/admin/AdminPlans"; // ✅ Added this
 
 export default function App() {
   const { user } = useAuth();
@@ -24,11 +29,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* Public Routes */}
+        {/* ---------- PUBLIC ROUTES ---------- */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verify-notice" element={<VerifyNotice />} />
 
-        {/* User Routes */}
+        {/* ---------- USER ROUTES ---------- */}
         <Route
           path="/dashboard"
           element={
@@ -62,7 +69,7 @@ export default function App() {
           }
         />
 
-        {/* Admin Routes */}
+        {/* ---------- ADMIN ROUTES ---------- */}
         <Route
           path="/admin/dashboard"
           element={
@@ -87,10 +94,18 @@ export default function App() {
             </AdminRoute>
           }
         />
+        <Route
+          path="/admin/plans"
+          element={
+            <AdminRoute>
+              <AdminPlans />
+            </AdminRoute>
+          }
+        />
       </Routes>
 
-      {/* ✅ Show Navbar only for regular users */}
+      {/* ---------- NAVBAR (user only) ---------- */}
       {user && user.role !== "admin" && <Navbar />}
     </div>
   );
-          }
+}
