@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
+import AdminRoute from "./components/AdminRoute"; 
 import { useAuth } from "./authContext";
 
 // Public Pages
