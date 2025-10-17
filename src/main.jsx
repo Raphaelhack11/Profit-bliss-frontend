@@ -1,13 +1,20 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App.jsx";
+import { Toaster } from "react-hot-toast";
+import App from "./App";
+import { AuthProvider } from "./authContext";
 import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const root = createRoot(document.getElementById("root"));
+
+root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+        <Toaster position="top-right" reverseOrder={false} />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
