@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import API from "../api";
 import toast, { Toaster } from "react-hot-toast";
-import DepositAlert from "../components/DepositAlert"; // ✅ existing component
+import DepositAlert from "../components/DepositAlert";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +29,6 @@ export default function Dashboard() {
 
     fetchData();
 
-    // ✅ Toast alert like Plans page (bottom right)
     const timer = setTimeout(() => {
       toast.custom(
         (t) => (
@@ -45,18 +44,10 @@ export default function Dashboard() {
   async function fetchData() {
     try {
       const [walletRes, plansRes, txRes, invRes] = await Promise.all([
-        API.get("/wallet", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        API.get("/plans", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        API.get("/transactions", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        API.get("/investments", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        API.get("/wallet", { headers: { Authorization: `Bearer ${token}` } }),
+        API.get("/plans", { headers: { Authorization: `Bearer ${token}` } }),
+        API.get("/transactions", { headers: { Authorization: `Bearer ${token}` } }),
+        API.get("/investments", { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       setWallet(walletRes.data);
@@ -130,12 +121,12 @@ export default function Dashboard() {
           />
           <Card
             icon={<ArrowUpCircle className="h-6 w-6 text-yellow-600" />}
-            title="Transactions"
+            title="Total Transactions"
             value={transactions.length}
           />
         </div>
 
-        {/* Active Investments with Progress */}
+        {/* Active Investments */}
         <Section title="Active Investments">
           {investments.length === 0 ? (
             <p className="text-gray-500">You have no active investments yet.</p>
@@ -243,9 +234,7 @@ export default function Dashboard() {
                       key={tx.id}
                       className="hover:bg-gray-50 text-gray-700 text-sm"
                     >
-                      <td className="py-3 px-4 border-b capitalize">
-                        {tx.type}
-                      </td>
+                      <td className="py-3 px-4 border-b capitalize">{tx.type}</td>
                       <td className="py-3 px-4 border-b">${tx.amount}</td>
                       <td className="py-3 px-4 border-b">
                         <span
@@ -295,4 +284,4 @@ function Section({ title, children }) {
       {children}
     </section>
   );
-        }
+            }
