@@ -1,8 +1,6 @@
-// src/pages/LandingPage.jsx
-import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 import DepositAlert from "../components/DepositAlert";
 
 const plans = [
@@ -33,23 +31,45 @@ const testimonials = [
   },
 ];
 
+function Counter({ target, duration = 2000, suffix = "" }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const end = parseInt(target);
+    const step = Math.max(Math.floor(duration / end), 10);
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+      if (start === end) clearInterval(timer);
+    }, step);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  return (
+    <span className="text-3xl md:text-4xl font-bold text-indigo-600">
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
 export default function LandingPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  // Use DepositAlert component for toast simulation
+  // 🔹 Show DepositAlert every 15 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      DepositAlert(); // triggers a random deposit/withdrawal alert
-    }, 5000);
+      DepositAlert(); // triggers randomized alert
+    }, 15000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
-      {/* ---------- HEADER ---------- */}
+      {/* Navbar */}
       <header className="w-full py-4 px-5 flex justify-between items-center border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
+          {/* Purple “H” logo */}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse shadow-md">
             <span className="text-white text-2xl font-bold select-none">H</span>
           </div>
           <h1 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
@@ -79,7 +99,7 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* ---------- HERO SECTION ---------- */}
+      {/* Hero Section */}
       <section className="flex-1 flex items-center justify-center px-6 py-16 bg-gradient-to-r from-indigo-50 to-white">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 text-center md:text-left">
@@ -106,10 +126,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Simple Hero image */}
           <div className="flex-1 flex justify-center">
             <img
-              src="https://cdn-icons-png.flaticon.com/512/8864/8864336.png"
+              src="https://cdn3d.iconscout.com/3d/premium/thumb/financial-growth-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--money-dollar-investment-profit-business-pack-economy-illustrations-4603726.png"
               alt="Investment growth"
               className="max-w-[260px] sm:max-w-sm md:max-w-md drop-shadow-md"
             />
@@ -117,7 +136,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- FEATURES ---------- */}
+      {/* Stats */}
+      <section className="bg-indigo-50 py-12">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <Counter target={500} suffix="+" />
+            <p className="mt-2 text-gray-600">Active Investors</p>
+          </div>
+          <div>
+            <Counter target={100} suffix="k+" />
+            <p className="mt-2 text-gray-600">Total Payouts ($)</p>
+          </div>
+          <div>
+            <Counter target={6} />
+            <p className="mt-2 text-gray-600">Plans Available</p>
+          </div>
+          <div>
+            <Counter target={98} suffix="%" />
+            <p className="mt-2 text-gray-600">Customer Satisfaction</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Feature
@@ -138,14 +179,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- PLANS ---------- */}
-      <section className="bg-indigo-50 py-16" id="plans">
+      {/* Plans */}
+      <section className="bg-indigo-50 py-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4 text-gray-900">
             Our Investment Plans
           </h2>
           <p className="text-gray-600 mb-10">
-            Choose a plan that fits your financial goals.
+            Flexible plans tailored to your financial goals.
           </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {plans.map((plan) => (
@@ -176,8 +217,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- TESTIMONIALS ---------- */}
-      <section className="py-16 bg-white" id="testimonials">
+      {/* Testimonials */}
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-12 text-gray-900">
             What Our Investors Say
@@ -202,7 +243,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- CONTACT ---------- */}
+      {/* Contact */}
       <section id="contact" className="py-16 bg-indigo-50">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Contact Us</h2>
@@ -241,7 +282,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------- FOOTER ---------- */}
       <footer className="py-6 text-center text-gray-500 text-sm border-t border-gray-200">
         © {new Date().getFullYear()} EquiGrow. All rights reserved.
       </footer>
@@ -257,4 +297,4 @@ function Feature({ icon: Icon, title, text }) {
       <p className="text-gray-600">{text}</p>
     </div>
   );
-          }
+}
