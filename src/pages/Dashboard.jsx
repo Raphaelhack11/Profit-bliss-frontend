@@ -6,10 +6,9 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   Loader2,
-  LogOut,
 } from "lucide-react";
 import API from "../api";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -27,14 +26,14 @@ export default function Dashboard() {
 
   const token = localStorage.getItem("pb_token");
 
-  // ✅ Redirect to login if no token
+  // ✅ Redirect if not logged in
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Fetch all dashboard data in parallel
+    // Fetch all data
     Promise.all([
       fetchWallet(),
       fetchActiveInvestments(),
@@ -47,11 +46,19 @@ export default function Dashboard() {
         navigate("/login");
       })
       .finally(() => setPageLoading(false));
+
+    // ✅ Show toast after 5 seconds
+    const alertTimeout = setTimeout(() => {
+      toast.success("Deposit Successful ✅", {
+        duration: 4000,
+        position: "bottom-right",
+      });
+    }, 5000);
+
+    return () => clearTimeout(alertTimeout);
   }, []);
 
-  // -----------------------------
   // Fetch Functions
-  // -----------------------------
   async function fetchWallet() {
     const res = await API.get("/wallet", {
       headers: { Authorization: `Bearer ${token}` },
@@ -80,13 +87,13 @@ export default function Dashboard() {
     setPlans(res.data);
   }
 
-  // -----------------------------
-  // Actions
-  // -----------------------------
+  // Investment action
   async function handleInvest() {
     if (!selectedPlan) return;
     if (Number(amount) < selectedPlan.minAmount) {
-      toast.error(`Minimum investment is $${selectedPlan.minAmount}`);
+      toast.error(`Minimum investment is $${selectedPlan.minAmount}`, {
+        position: "bottom-right",
+      });
       return;
     }
 
@@ -98,34 +105,20 @@ export default function Dashboard() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toast.success("✅ Investment started!");
+      toast.success("Investment started ✅", { position: "bottom-right" });
       setShowModal(false);
       setAmount("");
       await Promise.all([fetchWallet(), fetchActiveInvestments(), fetchHistory()]);
     } catch (err) {
-      toast.error(err.response?.data?.error || "Failed to invest ❌");
+      toast.error(err.response?.data?.error || "Failed to invest ❌", {
+        position: "bottom-right",
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  function handleLogout() {
-    localStorage.removeItem("pb_token");
-    toast.success("Logged out successfully");
-    navigate("/login");
-  }
-
-  // -----------------------------
-  // UI Components
-  // -----------------------------
-  const SkeletonCard = () => (
-    <div className="p-6 rounded-2xl shadow bg-gray-100 animate-pulse">
-      <div className="h-6 w-1/3 bg-gray-300 rounded mb-4"></div>
-      <div className="h-4 w-1/2 bg-gray-300 rounded mb-2"></div>
-      <div className="h-4 w-1/4 bg-gray-300 rounded"></div>
-    </div>
-  );
-
+  // Investment progress
   function InvestmentProgress({ investment }) {
     const [progress, setProgress] = useState(0);
 
@@ -148,22 +141,19 @@ export default function Dashboard() {
 
     return (
       <div className="mt-3">
-        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-indigo-600 transition-all duration-500"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           {progress.toFixed(1)}% complete
         </p>
       </div>
     );
   }
 
-  // -----------------------------
-  // Render
-  // -----------------------------
   if (pageLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-700">
@@ -176,65 +166,45 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 px-6 py-10">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-white text-gray-900 px-4 sm:px-8 py-8">
+      <Toaster />
+
+      <div className="max-w-7xl mx-auto space-y-10">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-700">Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-          >
-            <LogOut className="h-5 w-5" /> Logout
-          </button>
+        <div>
+          <h1 className="text-3xl font-bold text-indigo-700 mb-2">
+            Welcome Back 👋
+          </h1>
+          <p className="text-gray-500">Manage your investments and track performance.</p>
         </div>
 
-        {/* Wallet Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-          {!wallet ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : (
-            <>
-              <div className="p-6 rounded-2xl shadow bg-indigo-50 border border-indigo-100">
-                <Wallet className="h-8 w-8 text-indigo-600 mb-2" />
-                <p className="text-gray-600">Wallet Balance</p>
-                <h2 className="text-2xl font-bold text-indigo-700">
-                  ${wallet.balance}
-                </h2>
-              </div>
-              <div className="p-6 rounded-2xl shadow bg-green-50 border border-green-100">
-                <TrendingUp className="h-8 w-8 text-green-600 mb-2" />
-                <p className="text-gray-600">Total Profit</p>
-                <h2 className="text-2xl font-bold text-green-700">
-                  ${wallet.profit || 0}
-                </h2>
-              </div>
-              <div className="p-6 rounded-2xl shadow bg-yellow-50 border border-yellow-100">
-                <ArrowUpCircle className="h-8 w-8 text-yellow-600 mb-2" />
-                <p className="text-gray-600">Active Investments</p>
-                <h2 className="text-2xl font-bold text-yellow-700">
-                  {activeInvestments ? activeInvestments.length : 0}
-                </h2>
-              </div>
-            </>
-          )}
+        {/* Wallet Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <Card icon={<Wallet className="h-6 w-6 text-indigo-600" />} title="Wallet Balance">
+            ${wallet?.balance ?? 0}
+          </Card>
+          <Card icon={<TrendingUp className="h-6 w-6 text-green-600" />} title="Total Profit">
+            ${wallet?.profit ?? 0}
+          </Card>
+          <Card
+            icon={<ArrowUpCircle className="h-6 w-6 text-yellow-600" />}
+            title="Active Investments"
+          >
+            {activeInvestments ? activeInvestments.length : 0}
+          </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="flex gap-4 mb-10">
+        <div className="flex flex-wrap gap-4">
           <Link
             to="/deposit"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition transform hover:scale-105"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition-transform hover:scale-105"
           >
             <ArrowDownCircle className="h-5 w-5" /> Deposit
           </Link>
           <Link
             to="/withdraw"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow hover:bg-red-700 transition transform hover:scale-105"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow hover:bg-red-700 transition-transform hover:scale-105"
           >
             <ArrowUpCircle className="h-5 w-5" /> Withdraw
           </Link>
@@ -243,29 +213,25 @@ export default function Dashboard() {
         {/* Active Investments */}
         <Section title="Active Investments">
           {!activeInvestments ? (
-            <SkeletonCard />
+            <Skeleton />
           ) : activeInvestments.length === 0 ? (
             <p className="text-gray-500">No active investments right now.</p>
           ) : (
-            <div className="grid gap-6 mb-12">
+            <div className="grid gap-6">
               {activeInvestments.map((inv) => (
                 <div
                   key={inv.id}
-                  className="p-6 bg-white rounded-2xl shadow border border-gray-100"
+                  className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-indigo-700">
-                      {inv.plan?.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-indigo-700">{inv.plan?.name}</h3>
                     <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                       {inv.status}
                     </span>
                   </div>
                   <p className="text-gray-600 mt-2">Amount: ${inv.amount}</p>
                   <p className="text-gray-600">ROI: {inv.plan?.roi}%</p>
-                  <p className="text-gray-600">
-                    Duration: {inv.plan?.duration} days
-                  </p>
+                  <p className="text-gray-600">Duration: {inv.plan?.duration} days</p>
                   <InvestmentProgress investment={inv} />
                 </div>
               ))}
@@ -276,20 +242,18 @@ export default function Dashboard() {
         {/* History */}
         <Section title="Investment History">
           {!history ? (
-            <SkeletonCard />
+            <Skeleton />
           ) : history.length === 0 ? (
             <p className="text-gray-500">No past investments yet.</p>
           ) : (
-            <div className="grid gap-6 mb-12">
+            <div className="grid gap-6">
               {history.map((inv) => (
                 <div
                   key={inv.id}
-                  className="p-6 bg-white rounded-2xl shadow border border-gray-100"
+                  className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-indigo-700">
-                      {inv.plan?.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-indigo-700">{inv.plan?.name}</h3>
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         inv.status === "active"
@@ -302,9 +266,7 @@ export default function Dashboard() {
                   </div>
                   <p className="text-gray-600 mt-2">Amount: ${inv.amount}</p>
                   <p className="text-gray-600">ROI: {inv.plan?.roi}%</p>
-                  <p className="text-gray-600">
-                    Duration: {inv.plan?.duration} days
-                  </p>
+                  <p className="text-gray-600">Duration: {inv.plan?.duration} days</p>
                 </div>
               ))}
             </div>
@@ -314,10 +276,7 @@ export default function Dashboard() {
         {/* Plans */}
         <Section title="Available Plans">
           {!plans ? (
-            <div className="grid gap-6">
-              <SkeletonCard />
-              <SkeletonCard />
-            </div>
+            <Skeleton />
           ) : plans.length === 0 ? (
             <p className="text-gray-500">No plans available.</p>
           ) : (
@@ -325,18 +284,13 @@ export default function Dashboard() {
               {plans.map((plan) => (
                 <div
                   key={plan.id}
-                  className="p-6 bg-white rounded-2xl shadow border border-gray-100"
+                  className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
                 >
-                  <h3 className="text-lg font-semibold text-indigo-700">
-                    {plan.name}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-indigo-700">{plan.name}</h3>
                   <p className="text-gray-600">{plan.description}</p>
                   <p className="text-gray-600">ROI: {plan.roi}%</p>
-                  <p className="text-gray-600">
-                    Duration: {plan.duration} days
-                  </p>
+                  <p className="text-gray-600">Duration: {plan.duration} days</p>
                   <p className="text-gray-600">Minimum: ${plan.minAmount}</p>
-
                   <button
                     onClick={() => {
                       setSelectedPlan(plan);
@@ -355,8 +309,8 @@ export default function Dashboard() {
 
       {/* Modal */}
       {showModal && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
             <h2 className="text-xl font-bold text-indigo-700 mb-4">
               Invest in {selectedPlan.name}
             </h2>
@@ -392,8 +346,7 @@ export default function Dashboard() {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Processing...
+                    <Loader2 className="h-5 w-5 animate-spin" /> Processing...
                   </>
                 ) : (
                   "Confirm"
@@ -407,12 +360,30 @@ export default function Dashboard() {
   );
 }
 
-// Reusable Section Wrapper
-function Section({ title, children }) {
+// Reusable UI Components
+function Card({ icon, title, children }) {
   return (
-    <div className="mb-12">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800">{title}</h2>
-      {children}
+    <div className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition">
+      <div className="flex items-center gap-3 mb-3">
+        {icon}
+        <h3 className="font-semibold text-gray-800">{title}</h3>
+      </div>
+      <p className="text-2xl font-bold text-indigo-700">{children}</p>
     </div>
   );
-  }
+}
+
+function Section({ title, children }) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="p-6 rounded-2xl border border-gray-200 bg-gray-100 animate-pulse h-32"></div>
+  );
+}
