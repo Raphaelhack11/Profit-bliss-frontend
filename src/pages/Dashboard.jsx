@@ -7,6 +7,7 @@ import {
   ArrowUpCircle,
   Clock,
   Loader2,
+  X,
 } from "lucide-react";
 import API from "../api";
 import toast, { Toaster } from "react-hot-toast";
@@ -19,6 +20,8 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalPlan, setModalPlan] = useState(null);
+  const [investAmount, setInvestAmount] = useState("");
 
   const token = localStorage.getItem("pb_token");
 
@@ -30,6 +33,7 @@ export default function Dashboard() {
 
     fetchData();
 
+    // Deposit alert only at bottom-right
     const timer = setTimeout(() => {
       toast.custom(
         (t) => <DepositAlert visible={t.visible} message="Deposit Successful ✅" />,
@@ -55,7 +59,7 @@ export default function Dashboard() {
       setInvestments(invRes.data);
     } catch (err) {
       console.error("❌ Dashboard load error:", err);
-      toast.error("Failed to load dashboard data", { position: "bottom-right" });
+      toast.error("Failed to load dashboard data", { position: "top-right" });
       if (err.response?.status === 401) {
         localStorage.removeItem("pb_token");
         navigate("/login");
@@ -65,13 +69,62 @@ export default function Dashboard() {
     }
   }
 
+  async function handleInvest(plan) {
+    const amount = parseFloat(investAmount);
+    if (!amount || amount < plan.minAmount) {
+      toast.error(`Minimum investment is $${plan.minAmount}`, { position: "top-right" });
+      return;
+    }
+    if (amount > wallet.balance) {
+      toast.error("Insufficient balance", { position: "top-right" });
+      return;
+    }
+
+    try {
+      // API call to invest
+      const res = await API.post(
+        "/invest",
+        { planId: plan.id, amount },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update wallet balance
+      setWallet((prev) => ({ ...prev, balance: prev.balance - amount }));
+
+      // Add new transaction
+      const newTx = {
+        id: res.data.id,
+        type: "investment",
+        amount,
+        status: "completed",
+        createdAt: new Date().toISOString(),
+      };
+      setTransactions((prev) => [newTx, ...prev]);
+
+      // Add investment
+      const newInv = {
+        id: res.data.investmentId,
+        plan,
+        amount,
+        daysCompleted: 0,
+        status: "active",
+      };
+      setInvestments((prev) => [newInv, ...prev]);
+
+      toast.success(`Invested $${amount} in ${plan.name} ✅`, { position: "top-right" });
+      setModalPlan(null);
+      setInvestAmount("");
+    } catch (err) {
+      console.error("Invest error:", err);
+      toast.error("Investment failed", { position: "top-right" });
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-700">
         <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-4" />
-        <p className="animate-pulse text-lg font-medium">
-          Loading your dashboard...
-        </p>
+        <p className="animate-pulse text-lg font-medium">Loading your dashboard...</p>
       </div>
     );
   }
@@ -79,7 +132,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-8 py-8">
       <Toaster />
-      <div className="max-w-7xl mx-auto space-y-10">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -97,7 +150,7 @@ export default function Dashboard() {
             </div>
             <Wallet className="h-12 w-12 opacity-50" />
           </div>
-          <div className="grid grid-cols-3 mt-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 overflow-x-auto">
             <MiniCard
               title="Total Profit"
               value={`$${wallet?.profit ?? 0}`}
@@ -147,19 +200,12 @@ export default function Dashboard() {
                         <span>{inv.daysCompleted}/{inv.plan.duration} days</span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-indigo-600 rounded-full"
-                          style={{ width: `${progress}%` }}
-                        />
+                        <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
                     <p className="mt-3 text-sm text-gray-600">
                       ROI: {inv.plan.roi}% | Status:{" "}
-                      <span
-                        className={`font-semibold ${
-                          inv.status === "active" ? "text-green-600" : "text-yellow-600"
-                        }`}
-                      >
+                      <span className={`font-semibold ${inv.status === "active" ? "text-green-600" : "text-yellow-600"}`}>
                         {inv.status}
                       </span>
                     </p>
@@ -182,59 +228,4 @@ export default function Dashboard() {
                   className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
                 >
                   <h3 className="text-xl font-semibold text-indigo-700">{plan.name}</h3>
-                  <p className="text-gray-600 mt-1">{plan.description}</p>
-                  <ul className="mt-3 text-sm text-gray-600 space-y-1">
-                    <li>ROI: {plan.roi}%</li>
-                    <li>Duration: {plan.duration} days</li>
-                    <li>Min: ${plan.minAmount}</li>
-                  </ul>
-                  <button
-                    className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
-                    onClick={() => toast.success(`Invested in ${plan.name} ✅`, { position: "bottom-right" })}
-                  >
-                    Invest Now
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
-      </div>
-    </div>
-  );
-}
-
-// Mini Card for Wallet details
-function MiniCard({ title, value, icon, bg }) {
-  return (
-    <div className={`flex items-center gap-2 p-3 rounded-xl ${bg}`}>
-      <div>{icon}</div>
-      <div>
-        <p className="text-xs text-gray-600">{title}</p>
-        <h4 className="font-semibold text-sm">{value}</h4>
-      </div>
-    </div>
-  );
-}
-
-// Action Card (Deposit, Withdraw, History)
-function ActionCard({ to, label, icon, color }) {
-  return (
-    <Link
-      to={to}
-      className={`${color} text-white flex items-center gap-2 px-5 py-3 rounded-xl min-w-[120px] flex-shrink-0 hover:opacity-90 transition`}
-    >
-      {icon}
-      <span className="font-semibold">{label}</span>
-    </Link>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
-      {children}
-    </section>
-  );
-}
+                  <p className="text-gray
