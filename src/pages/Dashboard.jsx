@@ -6,10 +6,10 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   Loader2,
+  LogOut,
 } from "lucide-react";
 import API from "../api";
 import toast from "react-hot-toast";
-import DepositAlert from "../components/DepositAlert";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -18,7 +18,6 @@ export default function Dashboard() {
   const [activeInvestments, setActiveInvestments] = useState(null);
   const [history, setHistory] = useState(null);
   const [plans, setPlans] = useState(null);
-  const [user, setUser] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -35,12 +34,12 @@ export default function Dashboard() {
       return;
     }
 
+    // Fetch all dashboard data in parallel
     Promise.all([
       fetchWallet(),
       fetchActiveInvestments(),
       fetchHistory(),
       fetchPlans(),
-      fetchUser(),
     ])
       .catch(() => {
         toast.error("Session expired. Please log in again.");
@@ -48,14 +47,6 @@ export default function Dashboard() {
         navigate("/login");
       })
       .finally(() => setPageLoading(false));
-  }, []);
-
-  // ✅ Trigger Deposit Alerts (bottom-right, every 15s)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      DepositAlert();
-    }, 15000);
-    return () => clearInterval(interval);
   }, []);
 
   // -----------------------------
@@ -89,13 +80,6 @@ export default function Dashboard() {
     setPlans(res.data);
   }
 
-  async function fetchUser() {
-    const res = await API.get("/user/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setUser(res.data);
-  }
-
   // -----------------------------
   // Actions
   // -----------------------------
@@ -123,6 +107,12 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("pb_token");
+    toast.success("Logged out successfully");
+    navigate("/login");
   }
 
   // -----------------------------
@@ -188,23 +178,15 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white text-gray-900 px-6 py-10">
       <div className="max-w-6xl mx-auto">
-        {/* Header with Logo and Welcome */}
-        <div className="flex justify-between items-center mb-10">
-          <div className="flex items-center gap-3">
-            {/* Animated H Logo like LandingPage */}
-            <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse shadow-md">
-              <span className="text-white text-2xl font-bold select-none">H</span>
-            </div>
-            <h1 className="text-3xl font-extrabold text-indigo-700 tracking-tight">
-              EquiGrow
-            </h1>
-          </div>
-
-          <div className="text-right">
-            <h2 className="text-lg md:text-xl font-semibold text-gray-700">
-              Welcome{user?.name ? `, ${user.name.split(" ")[0]} 👋` : "!"}
-            </h2>
-          </div>
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-indigo-700">Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+          >
+            <LogOut className="h-5 w-5" /> Logout
+          </button>
         </div>
 
         {/* Wallet Section */}
@@ -433,4 +415,4 @@ function Section({ title, children }) {
       {children}
     </div>
   );
-}
+  }
