@@ -18,9 +18,20 @@ export function AuthProvider({ children }) {
     }
 
     API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    setUser(JSON.parse(userData));
-    setLoading(false);
+    verifyUser(); // ✅ verify token before setting user
   }, []);
+
+  async function verifyUser() {
+    try {
+      const res = await API.get("/auth/me");
+      setUser(res.data);
+    } catch {
+      localStorage.clear();
+      toast.error("Session expired. Please login again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const loginAction = (token, userObj) => {
     const isAdmin = userObj.role === "admin";
