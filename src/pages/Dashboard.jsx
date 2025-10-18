@@ -1,207 +1,298 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowDownCircle, ArrowUpCircle, Wallet, BarChart3 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Wallet,
+  TrendingUp,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Loader2,
+} from "lucide-react";
 import API from "../api";
-import { useAuth } from "../authContext";
 import toast, { Toaster } from "react-hot-toast";
-import DepositAlert from "../components/DepositAlert";
+import DepositAlert from "../components/DepositAlert"; // ✅ existing component
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
   const [plans, setPlans] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch dashboard data
+  const token = localStorage.getItem("pb_token");
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [walletRes, plansRes, txRes] = await Promise.all([
-          API.get("/wallet"),
-          API.get("/plans/active"),
-          API.get("/transactions/history"),
-        ]);
-        setWallet(walletRes.data);
-        setPlans(plansRes.data);
-        setTransactions(txRes.data);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     fetchData();
+
+    // ✅ Toast alert like Plans page (bottom right)
+    const timer = setTimeout(() => {
+      toast.custom(
+        (t) => (
+          <DepositAlert visible={t.visible} message="Deposit Successful ✅" />
+        ),
+        { duration: 15000, position: "bottom-right" }
+      );
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  if (loading)
+  async function fetchData() {
+    try {
+      const [walletRes, plansRes, txRes, invRes] = await Promise.all([
+        API.get("/wallet", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        API.get("/plans", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        API.get("/transactions", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        API.get("/investments", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      setWallet(walletRes.data);
+      setPlans(plansRes.data);
+      setTransactions(txRes.data);
+      setInvestments(invRes.data);
+    } catch (err) {
+      console.error("❌ Dashboard load error:", err);
+      toast.error("Failed to load dashboard data", { position: "bottom-right" });
+      if (err.response?.status === 401) {
+        localStorage.removeItem("pb_token");
+        navigate("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-white">
-        <div className="text-gray-600 text-lg font-medium animate-pulse">
-          Loading dashboard...
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-700">
+        <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-4" />
+        <p className="animate-pulse text-lg font-medium">
+          Loading your dashboard...
+        </p>
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-8 py-6">
-      <Toaster position="bottom-right" />
-      <DepositAlert interval={15000} /> {/* ✅ same style & timing as Plans */}
-
-      {/* Welcome */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-6"
-      >
-        <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {user?.name || "User"} 👋
-        </h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Here’s your account summary and recent activity.
-        </p>
-      </motion.div>
-
-      {/* Balance Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="rounded-2xl shadow-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-6 mb-8"
-      >
-        <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-white text-gray-900 px-4 sm:px-8 py-8">
+      <Toaster />
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-lg font-semibold">Wallet Balance</h2>
-            <p className="text-3xl font-bold mt-2">
-              ${wallet?.balance?.toFixed(2) || "0.00"}
+            <h1 className="text-3xl font-bold text-indigo-700">
+              Welcome Back 👋
+            </h1>
+            <p className="text-gray-500">
+              Manage your wallet, plans, and investments.
             </p>
           </div>
-          <Wallet size={40} className="opacity-80" />
-        </div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
-        {[
-          {
-            label: "Deposit",
-            icon: <ArrowDownCircle size={30} className="text-indigo-600 mb-2" />,
-            path: "/deposit",
-          },
-          {
-            label: "Withdraw",
-            icon: <ArrowUpCircle size={30} className="text-green-600 mb-2" />,
-            path: "/withdraw",
-          },
-          {
-            label: "Plans",
-            icon: <BarChart3 size={30} className="text-yellow-500 mb-2" />,
-            path: "/plans",
-          },
-          {
-            label: "History",
-            icon: <BarChart3 size={30} className="text-blue-500 mb-2" />,
-            path: "/history",
-          },
-        ].map((item) => (
-          <motion.div
-            key={item.label}
-            whileHover={{ scale: 1.03 }}
-            className="p-4 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center justify-center hover:bg-gray-100 cursor-pointer"
-            onClick={() => (window.location.href = item.path)}
-          >
-            {item.icon}
-            <span className="font-medium text-gray-800">{item.label}</span>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Active Plans */}
-      <section className="mb-12">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">
-          Active Investment Plans
-        </h3>
-        {plans.length === 0 ? (
-          <p className="text-gray-500 text-sm">No active plans yet.</p>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <motion.div
-                key={plan._id}
-                whileHover={{ scale: 1.02 }}
-                className="p-5 bg-gray-50 rounded-2xl shadow-sm"
-              >
-                <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                <p className="text-sm text-gray-500 mt-1">
-                  Amount: ${plan.amount}
-                </p>
-
-                <div className="w-full bg-gray-200 h-2 rounded-full mt-3 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${plan.progress || 0}%` }}
-                    transition={{ duration: 0.8 }}
-                    className="bg-indigo-500 h-2 rounded-full"
-                  />
-                </div>
-
-                <p className="text-xs text-gray-400 mt-2">
-                  {plan.progress || 0}% completed
-                </p>
-              </motion.div>
-            ))}
+          <div className="flex gap-3">
+            <Link
+              to="/deposit"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
+            >
+              <ArrowDownCircle className="h-5 w-5" /> Deposit
+            </Link>
+            <Link
+              to="/withdraw"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+            >
+              <ArrowUpCircle className="h-5 w-5" /> Withdraw
+            </Link>
           </div>
-        )}
-      </section>
+        </div>
 
-      {/* Recent Transactions */}
-      <section className="mb-12">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">
-          Recent Transactions
-        </h3>
-        {transactions.length === 0 ? (
-          <p className="text-gray-500 text-sm">No transactions yet.</p>
-        ) : (
-          <div className="overflow-x-auto bg-gray-50 rounded-2xl shadow-sm">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-100 text-gray-700">
-                <tr>
-                  <th className="py-3 px-4 text-left font-semibold">Type</th>
-                  <th className="py-3 px-4 text-left font-semibold">Amount</th>
-                  <th className="py-3 px-4 text-left font-semibold">Status</th>
-                  <th className="py-3 px-4 text-left font-semibold">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((tx) => (
-                  <tr key={tx._id} className="border-t border-gray-200">
-                    <td className="py-3 px-4 capitalize">{tx.type}</td>
-                    <td className="py-3 px-4">${tx.amount}</td>
-                    <td className="py-3 px-4">
+        {/* Wallet Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <Card
+            icon={<Wallet className="h-6 w-6 text-indigo-600" />}
+            title="Wallet Balance"
+            value={`$${wallet?.balance ?? 0}`}
+          />
+          <Card
+            icon={<TrendingUp className="h-6 w-6 text-green-600" />}
+            title="Total Profit"
+            value={`$${wallet?.profit ?? 0}`}
+          />
+          <Card
+            icon={<ArrowUpCircle className="h-6 w-6 text-yellow-600" />}
+            title="Transactions"
+            value={transactions.length}
+          />
+        </div>
+
+        {/* Active Investments with Progress */}
+        <Section title="Active Investments">
+          {investments.length === 0 ? (
+            <p className="text-gray-500">You have no active investments yet.</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {investments.map((inv) => {
+                const progress =
+                  (inv.daysCompleted / inv.plan.duration) * 100 || 0;
+                return (
+                  <div
+                    key={inv.id}
+                    className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
+                  >
+                    <h3 className="text-lg font-semibold text-indigo-700">
+                      {inv.plan.name}
+                    </h3>
+                    <p className="text-gray-500 text-sm mt-1">
+                      ${inv.amount} invested
+                    </p>
+                    <div className="mt-4">
+                      <div className="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>{Math.round(progress)}%</span>
+                        <span>{inv.daysCompleted} / {inv.plan.duration} days</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-600 rounded-full"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm text-gray-600">
+                      ROI: {inv.plan.roi}% | Status:{" "}
                       <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          tx.status === "completed"
-                            ? "bg-green-100 text-green-700"
-                            : tx.status === "pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
+                        className={`font-semibold ${
+                          inv.status === "active"
+                            ? "text-green-600"
+                            : "text-yellow-600"
                         }`}
                       >
-                        {tx.status}
+                        {inv.status}
                       </span>
-                    </td>
-                    <td className="py-3 px-4 text-gray-500 text-xs">
-                      {new Date(tx.createdAt).toLocaleDateString()}
-                    </td>
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Section>
+
+        {/* Available Plans */}
+        <Section title="Available Plans">
+          {plans.length === 0 ? (
+            <p className="text-gray-500">No plans available at the moment.</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
+                >
+                  <h3 className="text-xl font-semibold text-indigo-700">
+                    {plan.name}
+                  </h3>
+                  <p className="text-gray-600 mt-1">{plan.description}</p>
+                  <ul className="mt-3 text-sm text-gray-600 space-y-1">
+                    <li>ROI: {plan.roi}%</li>
+                    <li>Duration: {plan.duration} days</li>
+                    <li>Min: ${plan.minAmount}</li>
+                  </ul>
+                  <button
+                    className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
+                    onClick={() =>
+                      toast.success(`Invested in ${plan.name} ✅`, {
+                        position: "bottom-right",
+                      })
+                    }
+                  >
+                    Invest Now
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {/* Transaction History */}
+        <Section title="Recent Transactions">
+          {transactions.length === 0 ? (
+            <p className="text-gray-500">No transactions yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-200 rounded-xl">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-gray-600 text-sm">
+                    <th className="py-3 px-4 border-b">Type</th>
+                    <th className="py-3 px-4 border-b">Amount</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                </thead>
+                <tbody>
+                  {transactions.map((tx) => (
+                    <tr
+                      key={tx.id}
+                      className="hover:bg-gray-50 text-gray-700 text-sm"
+                    >
+                      <td className="py-3 px-4 border-b capitalize">
+                        {tx.type}
+                      </td>
+                      <td className="py-3 px-4 border-b">${tx.amount}</td>
+                      <td className="py-3 px-4 border-b">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            tx.status === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 border-b">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Section>
+      </div>
     </div>
   );
 }
+
+// Reusable components
+function Card({ icon, title, value }) {
+  return (
+    <div className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-600 text-sm font-medium">{title}</p>
+          <h3 className="text-2xl font-bold text-indigo-700 mt-1">{value}</h3>
+        </div>
+        <div className="bg-indigo-50 p-3 rounded-xl">{icon}</div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+      {children}
+    </section>
+  );
+        }
