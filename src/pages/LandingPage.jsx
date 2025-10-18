@@ -1,7 +1,9 @@
+// src/pages/LandingPage.jsx
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import DepositAlert from "../components/DepositAlert";
 
 const plans = [
   { name: "Basic", minAmount: 100, roi: 20, duration: 7 },
@@ -31,59 +33,24 @@ const testimonials = [
   },
 ];
 
-const fakeNames = [
-  "Bryan", "Sophia", "Michael", "Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan",
-  "Isabella", "James", "Mia", "Alexander", "Amelia", "Benjamin", "Charlotte", "Colin", "Raphael",
-  "Henry", "Ella", "Lucas", "Chloe", "Daniel", "Harper", "Sebastian", "Luna", "Jack", "Scarlett",
-  "Owen", "Victoria", "Elijah", "Grace", "Mason", "Zoe", "Jacob", "Nora", "Carter", "Layla", "Leo", "Hannah"
-];
-
-const fakeAmounts = [
-  50, 75, 120, 200, 300, 500, 750, 900, 1000, 1500, 2000, 2500, 3000,
-  4000, 4500, 5000, 6000, 7000, 8500, 9000, 10000, 12000, 15000
-];
-
-function Counter({ target, duration = 2000, suffix = "" }) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    let start = 0;
-    const end = parseInt(target);
-    const step = Math.max(Math.floor(duration / end), 10);
-    const timer = setInterval(() => {
-      start += 1;
-      setCount(start);
-      if (start === end) clearInterval(timer);
-    }, step);
-    return () => clearInterval(timer);
-  }, [target, duration]);
-  return <span className="text-3xl md:text-4xl font-bold text-indigo-600">{count}{suffix}</span>;
-}
-
 export default function LandingPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  // Simulated alerts
+  // Use DepositAlert component for toast simulation
   useEffect(() => {
     const interval = setInterval(() => {
-      const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-      const amount = fakeAmounts[Math.floor(Math.random() * fakeAmounts.length)];
-      const type = Math.random() > 0.5 ? "deposited" : "withdrew";
-      toast.success(`${name} just ${type} $${amount}`, {
-        position: "top-right",
-        duration: 4000,
-      });
+      DepositAlert(); // triggers a random deposit/withdrawal alert
     }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
-      {/* Navbar */}
+      {/* ---------- HEADER ---------- */}
       <header className="w-full py-4 px-5 flex justify-between items-center border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-2">
-          {/* Purple-styled logo with soft CSS pulse */}
-          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse shadow-md">
-            <span className="text-white text-2xl font-bold select-none">E</span>
+          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
+            <span className="text-white text-2xl font-bold select-none">H</span>
           </div>
           <h1 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
             EquiGrow
@@ -112,7 +79,7 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* Hero Section */}
+      {/* ---------- HERO SECTION ---------- */}
       <section className="flex-1 flex items-center justify-center px-6 py-16 bg-gradient-to-r from-indigo-50 to-white">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 text-center md:text-left">
@@ -139,9 +106,10 @@ export default function LandingPage() {
             </div>
           </div>
 
+          {/* Simple Hero image */}
           <div className="flex-1 flex justify-center">
             <img
-              src="https://cdn3d.iconscout.com/3d/premium/thumb/financial-growth-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--money-dollar-investment-profit-business-pack-economy-illustrations-4603726.png"
+              src="https://cdn-icons-png.flaticon.com/512/8864/8864336.png"
               alt="Investment growth"
               className="max-w-[260px] sm:max-w-sm md:max-w-md drop-shadow-md"
             />
@@ -149,37 +117,53 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-indigo-50 py-12">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div><Counter target={500} suffix="+" /><p className="mt-2 text-gray-600">Active Investors</p></div>
-          <div><Counter target={100} suffix="k+" /><p className="mt-2 text-gray-600">Total Payouts ($)</p></div>
-          <div><Counter target={6} /><p className="mt-2 text-gray-600">Plans Available</p></div>
-          <div><Counter target={98} suffix="%" /><p className="mt-2 text-gray-600">Customer Satisfaction</p></div>
-        </div>
-      </section>
-
-      {/* Features */}
+      {/* ---------- FEATURES ---------- */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Feature icon={Shield} title="Secure" text="Top security practices protect your funds and data." />
-          <Feature icon={Clock} title="Fast Payouts" text="Quick withdrawals and transparent processing times." />
-          <Feature icon={TrendingUp} title="High ROI" text="Plans designed for sustainable growth and returns." />
+          <Feature
+            icon={Shield}
+            title="Secure"
+            text="Top security practices protect your funds and data."
+          />
+          <Feature
+            icon={Clock}
+            title="Fast Payouts"
+            text="Quick withdrawals and transparent processing times."
+          />
+          <Feature
+            icon={TrendingUp}
+            title="High ROI"
+            text="Plans designed for sustainable growth and returns."
+          />
         </div>
       </section>
 
-      {/* Plans */}
-      <section className="bg-indigo-50 py-16">
+      {/* ---------- PLANS ---------- */}
+      <section className="bg-indigo-50 py-16" id="plans">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-gray-900">Our Investment Plans</h2>
-          <p className="text-gray-600 mb-10">Flexible plans tailored to your financial goals.</p>
+          <h2 className="text-3xl font-bold mb-4 text-gray-900">
+            Our Investment Plans
+          </h2>
+          <p className="text-gray-600 mb-10">
+            Choose a plan that fits your financial goals.
+          </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {plans.map((plan) => (
-              <div key={plan.name} className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">{plan.name}</h3>
-                <p className="text-gray-600 mb-2">Min Deposit: <span className="font-semibold">${plan.minAmount}</span></p>
+              <div
+                key={plan.name}
+                className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                  {plan.name}
+                </h3>
+                <p className="text-gray-600 mb-2">
+                  Min Deposit:{" "}
+                  <span className="font-semibold">${plan.minAmount}</span>
+                </p>
                 <p className="text-gray-600 mb-2">ROI: {plan.roi}%</p>
-                <p className="text-gray-600 mb-6">Duration: {plan.duration} days</p>
+                <p className="text-gray-600 mb-6">
+                  Duration: {plan.duration} days
+                </p>
                 <Link
                   to="/signup"
                   className="block w-full py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
@@ -192,13 +176,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-white">
+      {/* ---------- TESTIMONIALS ---------- */}
+      <section className="py-16 bg-white" id="testimonials">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-12 text-gray-900">What Our Investors Say</h2>
+          <h2 className="text-3xl font-bold mb-12 text-gray-900">
+            What Our Investors Say
+          </h2>
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {testimonials.map((t, i) => (
-              <div key={i} className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition">
+              <div
+                key={i}
+                className="p-6 bg-indigo-50 rounded-xl shadow-sm hover:shadow-md transition"
+              >
                 <div className="mb-3 flex justify-center text-yellow-400">
                   {[...Array(5)].map((_, idx) => (
                     <Star key={idx} className="h-5 w-5 fill-yellow-400" />
@@ -213,12 +202,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Contact */}
+      {/* ---------- CONTACT ---------- */}
       <section id="contact" className="py-16 bg-indigo-50">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Contact Us</h2>
           {formSubmitted ? (
-            <p className="text-green-600 font-semibold">✅ Thank you! We’ll get back to you soon.</p>
+            <p className="text-green-600 font-semibold">
+              ✅ Thank you! We’ll get back to you soon.
+            </p>
           ) : (
             <form
               onSubmit={(e) => {
@@ -250,6 +241,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ---------- FOOTER ---------- */}
       <footer className="py-6 text-center text-gray-500 text-sm border-t border-gray-200">
         © {new Date().getFullYear()} EquiGrow. All rights reserved.
       </footer>
@@ -265,4 +257,4 @@ function Feature({ icon: Icon, title, text }) {
       <p className="text-gray-600">{text}</p>
     </div>
   );
-         }
+          }
