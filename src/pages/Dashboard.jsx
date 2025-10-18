@@ -81,17 +81,14 @@ export default function Dashboard() {
     }
 
     try {
-      // API call to invest
       const res = await API.post(
         "/invest",
         { planId: plan.id, amount },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update wallet balance
       setWallet((prev) => ({ ...prev, balance: prev.balance - amount }));
 
-      // Add new transaction
       const newTx = {
         id: res.data.id,
         type: "investment",
@@ -101,7 +98,6 @@ export default function Dashboard() {
       };
       setTransactions((prev) => [newTx, ...prev]);
 
-      // Add investment
       const newInv = {
         id: res.data.investmentId,
         plan,
@@ -350,4 +346,4 @@ function Section({ title, children }) {
       {children}
     </section>
   );
-          }k
+          }
