@@ -163,12 +163,6 @@ export default function Dashboard() {
               icon={<Clock className="h-5 w-5 text-yellow-600" />}
               bg="bg-yellow-50"
             />
-            <MiniCard
-              title="Actions"
-              value=""
-              icon={<ArrowDownCircle className="h-5 w-5 text-indigo-600" />}
-              bg="bg-indigo-50"
-            />
           </div>
         </div>
 
@@ -200,7 +194,10 @@ export default function Dashboard() {
                         <span>{inv.daysCompleted}/{inv.plan.duration} days</span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }} />
+                        <div
+                          className="h-full bg-indigo-600 rounded-full"
+                          style={{ width: `${progress}%` }}
+                        />
                       </div>
                     </div>
                     <p className="mt-3 text-sm text-gray-600">
@@ -228,4 +225,129 @@ export default function Dashboard() {
                   className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
                 >
                   <h3 className="text-xl font-semibold text-indigo-700">{plan.name}</h3>
-                  <p className="text-gray
+                  <p className="text-gray-600 mt-1">{plan.description}</p>
+                  <ul className="mt-3 text-sm text-gray-600 space-y-1">
+                    <li>ROI: {plan.roi}%</li>
+                    <li>Duration: {plan.duration} days</li>
+                    <li>Min: ${plan.minAmount}</li>
+                  </ul>
+                  <button
+                    className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
+                    onClick={() => setModalPlan(plan)}
+                  >
+                    Invest Now
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {/* Recent Transactions */}
+        <Section title="Recent Transactions">
+          {transactions.length === 0 ? (
+            <p className="text-gray-500">No transactions yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-200 rounded-xl">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-gray-600 text-sm">
+                    <th className="py-3 px-4 border-b">Type</th>
+                    <th className="py-3 px-4 border-b">Amount</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-gray-50 text-gray-700 text-sm">
+                      <td className="py-3 px-4 border-b capitalize">{tx.type}</td>
+                      <td className="py-3 px-4 border-b">${tx.amount}</td>
+                      <td className="py-3 px-4 border-b">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            tx.status === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 border-b">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Section>
+      </div>
+
+      {/* Invest Modal */}
+      {modalPlan && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-80 relative">
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              onClick={() => setModalPlan(null)}
+            >
+              <X />
+            </button>
+            <h2 className="text-xl font-semibold text-indigo-700 mb-2">{modalPlan.name}</h2>
+            <p className="text-gray-600 mb-2">{modalPlan.description}</p>
+            <p className="text-gray-700 mb-2">Min: ${modalPlan.minAmount}</p>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={investAmount}
+              onChange={(e) => setInvestAmount(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+            />
+            <button
+              className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+              onClick={() => handleInvest(modalPlan)}
+            >
+              Confirm Investment
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Reusable Components
+function MiniCard({ title, value, icon, bg }) {
+  return (
+    <div className={`flex items-center justify-between p-3 rounded-xl ${bg}`}>
+      <div>
+        <p className="text-xs text-gray-600">{title}</p>
+        <h3 className="text-sm font-semibold mt-1">{value}</h3>
+      </div>
+      <div>{icon}</div>
+    </div>
+  );
+}
+
+function ActionCard({ to, label, icon, color }) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-4 py-3 rounded-xl ${color} text-white font-semibold flex-shrink-0`}
+    >
+      {icon} {label}
+    </Link>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+      {children}
+    </section>
+  );
+          }k
