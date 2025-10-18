@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Shield, Clock, TrendingUp, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion";
 
 const plans = [
   { name: "Basic", minAmount: 100, roi: 20, duration: 7 },
@@ -82,14 +81,10 @@ export default function LandingPage() {
       {/* Navbar */}
       <header className="w-full py-4 px-5 flex justify-between items-center border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-2">
-          {/* Spinning Bitcoin logo */}
-          <motion.img
-            src="https://cdn3d.iconscout.com/3d/premium/thumb/bitcoin-3d-icon-download-in-png-blend-fbx-gltf-file-formats--crypto-currency-coin-money-pack-finance-icons-7298789.png"
-            alt="Bitcoin Logo"
-            className="w-10 h-10 md:w-12 md:h-12"
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-          />
+          {/* Purple-styled logo with soft CSS pulse */}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse shadow-md">
+            <span className="text-white text-2xl font-bold select-none">E</span>
+          </div>
           <h1 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
             EquiGrow
           </h1>
@@ -117,7 +112,7 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="flex-1 flex items-center justify-center px-6 py-16 bg-gradient-to-r from-indigo-50 to-white">
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 text-center md:text-left">
@@ -270,4 +265,4 @@ function Feature({ icon: Icon, title, text }) {
       <p className="text-gray-600">{text}</p>
     </div>
   );
-    }
+         }
