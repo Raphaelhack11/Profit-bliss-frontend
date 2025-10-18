@@ -1,8 +1,8 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute"; 
+import AdminRoute from "./components/AdminRoute";
 import { useAuth } from "./authContext";
 
 // Public Pages
@@ -28,6 +28,16 @@ import AdminPlans from "./pages/admin/AdminPlans";
 
 export default function App() {
   const { user } = useAuth();
+  const location = useLocation();
+
+  // Routes where Navbar should be hidden
+  const hiddenNavbarRoutes = [
+    "/", 
+    "/login", 
+    "/signup", 
+    "/verify-email", 
+    "/verify-notice"
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -124,8 +134,12 @@ export default function App() {
         />
       </Routes>
 
-      {/* ---------- NAVBAR (only visible for users, not admin) ---------- */}
-      {user && user.role !== "admin" && <Navbar />}
+      {/* ---------- NAVBAR (only visible for normal users, not admin or public) ---------- */}
+      {user && 
+        user.role !== "admin" && 
+        !hiddenNavbarRoutes.includes(location.pathname) && (
+          <Navbar />
+        )}
     </div>
   );
         }
